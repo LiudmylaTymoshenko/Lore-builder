@@ -1,11 +1,12 @@
-import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import { nanoid } from '@reduxjs/toolkit';
+import { createSlice, type PayloadAction, nanoid } from '@reduxjs/toolkit';
 
 export type Lore = {
   id: string;
   name: string;
   type: string;
   ownerId: string;
+  description?: string;
+  image?: string | null;
 };
 
 const initialState: Lore[] = [];
@@ -14,14 +15,18 @@ const loreSlice = createSlice({
   name: 'lore',
   initialState,
   reducers: {
-    addLore: (
-      state,
-      action: PayloadAction<{ name: string; type: string; ownerId: string }>,
-    ) => {
-      state.push({
-        id: nanoid(),
-        ...action.payload,
-      });
+    addLore: {
+      prepare: (data: Omit<Lore, 'id'>) => {
+        return {
+          payload: {
+            id: nanoid(),
+            ...data,
+          },
+        };
+      },
+      reducer: (state, action: PayloadAction<Lore>) => {
+        state.push(action.payload);
+      },
     },
   },
 });
