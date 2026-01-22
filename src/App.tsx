@@ -4,6 +4,8 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import LandingPage from './pages/LandingPage';
 import ProtectedRoute from './router/ProtectedRoute';
+import CreateLorePage from './pages/CreateLorePage';
+import LorePage from './pages/LorePage';
 
 function App() {
   return (
@@ -17,6 +19,24 @@ function App() {
         element={
           <ProtectedRoute>
             <DashboardPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lore/new"
+        element={
+          <ProtectedRoute>
+            <CreateLorePage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/lore/:id"
+        element={
+          <ProtectedRoute>
+            <LorePage />
           </ProtectedRoute>
         }
       />

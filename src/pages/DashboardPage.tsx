@@ -1,7 +1,6 @@
-import { addLore } from '../features/lore/loreSlice';
-import { useState } from 'react';
 import { logout } from '../features/auth/authSlice';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
+import { Link } from 'react-router-dom';
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
@@ -9,24 +8,6 @@ export default function DashboardPage() {
   const lores = useAppSelector((s) =>
     s.lore.filter((l) => l.ownerId === user?.id),
   );
-
-  const [name, setName] = useState('');
-  const [type, setType] = useState('');
-
-  const handleCreate = () => {
-    if (!name || !type || !user) return;
-
-    dispatch(
-      addLore({
-        name,
-        type,
-        ownerId: user.id,
-      }),
-    );
-
-    setName('');
-    setType('');
-  };
 
   return (
     <div className="min-h-screen bg-slate-100">
@@ -48,30 +29,12 @@ export default function DashboardPage() {
       <main className="p-8 max-w-6xl mx-auto space-y-8">
         {/* Create Lore */}
         <div className="bg-white rounded-2xl shadow p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Create new lore</h2>
-
-          <div className="flex gap-4">
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Lore name"
-              className="flex-1 rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-
-            <input
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              placeholder="Type (Fantasy, Sci-Fi, etc)"
-              className="flex-1 rounded-lg border px-4 py-2 focus:ring-2 focus:ring-indigo-500 outline-none"
-            />
-
-            <button
-              onClick={handleCreate}
-              className="rounded-lg bg-indigo-600 px-5 py-2 text-white hover:bg-indigo-700 transition"
-            >
-              Add
-            </button>
-          </div>
+          <Link
+            to="/lore/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 transition"
+          >
+            + Create Lore
+          </Link>
         </div>
 
         {/* Lore list */}
