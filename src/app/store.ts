@@ -3,6 +3,7 @@ import authReducer from '../features/auth/authSlice';
 import loreReducer from '../features/lore/loreSlice';
 import eventsReducer from '../features/events/eventsSlice';
 import charactersReducer from '../features/characters/charactersSlice';
+import connectionsReducer from '../features/connections/connectionsSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     lore: loreReducer,
     events: eventsReducer,
     characters: charactersReducer,
+    connections: connectionsReducer,
   },
 });
 
