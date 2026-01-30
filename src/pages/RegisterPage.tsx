@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { register } from '../features/auth/authSlice';
+import { registerThunk } from '../features/auth/authSlice';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAppDispatch } from '../app/hooks';
 
 export default function RegisterPage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(register({ email }));
+    dispatch(registerThunk({ email, password }));
     navigate('/dashboard');
   };
 
@@ -41,6 +42,15 @@ export default function RegisterPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
             type="email"
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            type="password"
             required
             className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           />

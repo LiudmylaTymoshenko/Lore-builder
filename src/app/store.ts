@@ -4,6 +4,7 @@ import loreReducer from '../features/lore/loreSlice';
 import eventsReducer from '../features/events/eventsSlice';
 import charactersReducer from '../features/characters/charactersSlice';
 import connectionsReducer from '../features/connections/connectionsSlice';
+import { authApi } from '../features/auth/authApi';
 
 export const store = configureStore({
   reducer: {
@@ -12,7 +13,10 @@ export const store = configureStore({
     events: eventsReducer,
     characters: charactersReducer,
     connections: connectionsReducer,
+    [authApi.reducerPath]: authApi.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(authApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;
