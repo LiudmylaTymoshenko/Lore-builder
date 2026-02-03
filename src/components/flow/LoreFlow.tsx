@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import ReactFlow, {
   Background,
-  Controls,
   MiniMap,
   type Connection,
   type Node,
@@ -11,12 +10,15 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   ReactFlowProvider,
+  useReactFlow,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import EventNode from './nodes/EventNode';
 import CharacterNode from './nodes/CharacterNode';
 import type { Character, ConnectionType, EventNodeType } from '../../types';
 import LoreSidebar from '../lore/LoreSidebar';
+import { FlowHelpControl } from './FlowHelpControl';
+import { X } from 'lucide-react';
 
 const nodeTypes = {
   event: EventNode,
@@ -24,6 +26,8 @@ const nodeTypes = {
 };
 
 function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
+  const { fitView } = useReactFlow();
+  const [showHelp, setShowHelp] = useState(false);
   const [events, setEvents] = useState<EventNodeType[]>([]);
   const [characters, setCharacters] = useState<Character[]>([]);
   const [connections, setConnections] = useState<ConnectionType[]>([]);
@@ -77,6 +81,28 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
     );
   }, []);
 
+  const handleDuplicateNode = (id: string) => {
+    setNodes((nodes) => {
+      const node = nodes.find((n) => n.id === id);
+      if (!node) return nodes;
+
+      const newNode = {
+        id: crypto.randomUUID(),
+        type: node.type,
+        position: {
+          x: node.position.x + 40,
+          y: node.position.y + 60,
+        },
+        data: {
+          ...node.data,
+        },
+        parentNode: undefined,
+        extent: undefined,
+      };
+
+      return [...nodes, newNode];
+    });
+  };
   const handleAddEvent = useCallback(() => {
     const newEvent: EventNodeType = {
       id: `event-${Date.now()}`,
@@ -125,6 +151,7 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
           label: newChar.name,
           onUpdate: handleUpdateCharacter,
           onDelete: handleDeleteCharacter,
+          onDuplicate: handleDuplicateNode,
         },
         position: newChar.position,
       },
@@ -181,7 +208,6 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
   );
 
   const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    console.log(changes, 'ed');
     setEdges((eds) => applyEdgeChanges(changes, eds));
 
     changes.forEach((change) => {
@@ -190,6 +216,10 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
       }
     });
   }, []);
+
+  const handleLocateEvent = (nodeId: string) => {
+    fitView({ nodes: [{ id: nodeId }], duration: 600 });
+  };
 
   return (
     <div style={{ width: '100vw', display: 'flex' }}>
@@ -203,9 +233,10 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
         handleAddCharacter={handleAddCharacter}
         handleUpdateCharacter={handleUpdateCharacter}
         handleDeleteCharacter={handleDeleteCharacter}
+        handleLocateEvent={handleLocateEvent}
       />
 
-      <div style={{ flex: 1, width: '100%' }}>
+      <div style={{ flex: 1, width: '100%', position: 'relative' }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -221,9 +252,25 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
           maxZoom={4}
         >
           <Background />
-          <Controls />
+          <FlowHelpControl setShowHelp={setShowHelp} />
           <MiniMap />
         </ReactFlow>
+        {showHelp && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center">
+            <div className="w-80 rounded-xl bg-white p-4 shadow-xl">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-semibold">Quick tips</h3>
+                <X
+                  className="w-4 h-4 text-red-500 cursor-pointer"
+                  onClick={() => setShowHelp(false)}
+                />
+              </div>
+              <ul className="space-y-1 text-sm text-gray-600">
+                <li>Hello</li>
+              </ul>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

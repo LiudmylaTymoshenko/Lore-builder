@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Character, ConnectionType, EventNodeType } from '../../types';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, MapPin } from 'lucide-react';
 
 interface LoreSidebarProps {
   events: EventNodeType[];
@@ -12,6 +12,7 @@ interface LoreSidebarProps {
   handleAddCharacter: () => void;
   handleUpdateCharacter: (id: string, val: string) => void;
   handleDeleteCharacter: (id: string) => void;
+  handleLocateEvent: (id: string, position: { x: number; y: number }) => void;
 }
 
 export default function LoreSidebar({
@@ -24,6 +25,7 @@ export default function LoreSidebar({
   handleAddCharacter,
   handleUpdateCharacter,
   handleDeleteCharacter,
+  handleLocateEvent,
 }: LoreSidebarProps) {
   const [tab, setTab] = useState<'events' | 'characters'>('events');
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -88,13 +90,13 @@ export default function LoreSidebar({
                           setEditingId(null);
                         }
                       }}
-                      className="flex-1 border rounded px-2 py-1 text-xs resize-none min-h-[60px]"
+                      className="flex-1 border rounded px-2 py-1 text-xs resize-none min-h-15"
                       rows={2}
                       autoFocus
                     />
                   ) : (
                     <span
-                      className="flex-1 wrap-break-word whitespace-pre-wrap max-w-47.5"
+                      className="flex-1 wrap-break-word whitespace-pre-wrap max-w-44"
                       onDoubleClick={() => {
                         setEditingId(e.id);
                         setEditingValue(e.title);
@@ -104,6 +106,18 @@ export default function LoreSidebar({
                     </span>
                   )}
                   <div className="flex gap-1">
+                    <button
+                      onClick={() =>
+                        handleLocateEvent(e.id, {
+                          x: e.position.x,
+                          y: e.position.y,
+                        })
+                      }
+                      className="text-green-600 hover:text-green-800"
+                      title="Edit"
+                    >
+                      <MapPin size={14} />
+                    </button>
                     <button
                       onClick={() => {
                         setEditingId(e.id);

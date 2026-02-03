@@ -1,17 +1,29 @@
-import { logout } from '../features/auth/authSlice';
-import { useAppSelector, useAppDispatch } from '../app/hooks';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { logout } from '../features/auth/authSlice';
+import { deleteLore, fetchLores } from '../features/lore/loreSlice';
+import { useAppSelector, useAppDispatch } from '../app/hooks';
+import { Trash2 } from 'lucide-react';
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
+
   const user = useAppSelector((s) => s.auth.user);
-  const lores = useAppSelector((s) =>
-    s.lore.filter((l) => l.ownerId === user?.id),
-  );
+  const lores = useAppSelector((s) => s.lore.items);
+  const loading = useAppSelector((s) => s.lore.loading);
+
+  useEffect(() => {
+    if (lores.length === 0) {
+      dispatch(fetchLores());
+    }
+  }, [dispatch, lores.length]);
+
+  const handleDelete = (id: string) => {
+    dispatch(deleteLore(id));
+  };
 
   return (
     <div className="min-h-screen bg-slate-100">
-      {/* Header */}
       <header className="flex items-center justify-between px-8 py-4 bg-white shadow">
         <h1 className="text-xl font-semibold">Lore Builder</h1>
 
@@ -27,7 +39,6 @@ export default function DashboardPage() {
       </header>
 
       <main className="p-8 max-w-6xl mx-auto space-y-8">
-        {/* Create Lore */}
         <div className="bg-white rounded-2xl shadow p-6 space-y-4">
           <Link
             to="/lore/new"
@@ -37,11 +48,14 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Lore list */}
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Your lores</h2>
 
-          {lores.length === 0 ? (
+          {loading ? (
+            <div className="bg-white rounded-2xl shadow p-8 text-center">
+              <p className="text-gray-500">Loading lores…</p>
+            </div>
+          ) : lores.length === 0 ? (
             <div className="bg-white rounded-2xl shadow p-8 text-center space-y-3">
               <p className="text-gray-500">You don’t have any lore yet.</p>
               <p className="text-sm text-gray-400">
@@ -53,10 +67,41 @@ export default function DashboardPage() {
               {lores.map((lore) => (
                 <div
                   key={lore.id}
-                  className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition cursor-pointer"
+                  className="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition"
+                  style={
+                    lore.imageUrl
+                      ? { backgroundImage: `url(${lore.imageUrl})` }
+                      : undefined
+                  }
                 >
-                  <h3 className="font-semibold text-lg">{lore.name}</h3>
-                  <p className="text-sm text-gray-500">{lore.type}</p>
+                  <div className="flex w-full justify-end">
+                    <Trash2
+                      onClick={() => handleDelete(lore.id)}
+                      className="w-4 h-4 text-red-500 cursor-pointer"
+                    />
+                  </div>
+                  <div className="my-4 p-2 rounded-xl bg-gray-50/70">
+                    <h2 className="font-semibold text-lg">{lore.name}</h2>
+                    <p className="text-sm text-gray-500 italic">{lore.type}</p>
+                  </div>
+                  <div className="flex w-full justify-end">
+                    <Link
+                      to={`/lore/${lore.id}`}
+                      className="
+                        inline-flex items-center gap-1
+                        rounded-lg
+                        bg-emerald-600 px-4 py-2
+                        text-sm font-medium text-white
+                        shadow-sm
+                        transition
+                        hover:bg-emerald-700
+                        active:scale-95
+                        focus:outline-none focus:ring-2 focus:ring-emerald-400
+                        "
+                    >
+                      Details
+                    </Link>
+                  </div>
                 </div>
               ))}
             </div>

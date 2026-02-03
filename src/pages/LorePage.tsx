@@ -7,7 +7,9 @@ import LoreFlow from '../components/flow/LoreFlow';
 export default function LorePage() {
   const { id } = useParams();
 
-  const lore = useSelector((s: RootState) => s.lore.find((l) => l.id === id));
+  const lore = useSelector((s: RootState) =>
+    s.lore.items.find((l) => l.id === id),
+  );
 
   if (!id || !lore) {
     return <div className="p-8">Lore not found</div>;

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { addLore } from '../features/lore/loreSlice';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
+import { createLore } from '../features/lore/loreSlice';
 
 export default function CreateLorePage() {
   const dispatch = useAppDispatch();
@@ -19,23 +19,24 @@ export default function CreateLorePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSubmit = () => {
-    if (!user || !name) return;
+  const handleSubmit = async () => {
+    if (!user || !name || !type) return;
 
-    const action = addLore({
-      name,
-      type,
-      ownerId: user.id,
-      description,
-      image,
-    });
+    try {
+      const lore = await dispatch(
+        createLore({
+          name,
+          type,
+          description,
+          imageUrl: image,
+        }),
+      ).unwrap();
 
-    const result = dispatch(action);
-    const loreId = result.payload.id;
-
-    navigate(`/lore/${loreId}`);
+      navigate(`/lore/${lore.id}`);
+    } catch (error) {
+      console.error('Failed to create lore', error);
+    }
   };
-
   return (
     <div className="min-h-screen bg-slate-100 px-4 py-10">
       <div className="mx-auto max-w-2xl bg-white rounded-2xl shadow p-8 space-y-6">
@@ -74,7 +75,7 @@ export default function CreateLorePage() {
               type="file"
               accept="image/*"
               onChange={(e) => e.target.files && handleImage(e.target.files[0])}
-              className="mt-1 block w-full text-sm"
+              className="mt-1 block w-full text-sm text-blue-700"
             />
           </label>
 

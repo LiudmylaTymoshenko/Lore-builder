@@ -1,9 +1,9 @@
 import { useState, memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position, type NodeProps } from 'reactflow';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { NodeData } from '../../../types';
 
-function EventNode({ data, id }: { data: NodeData; id: string }) {
+function EventNode({ data, id, selected }: NodeProps<NodeData>) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
 
@@ -39,7 +39,9 @@ function EventNode({ data, id }: { data: NodeData; id: string }) {
         </button>
       </div>
 
-      <div className="bg-white border-2 border-green-500 rounded-lg shadow-lg p-3 max-w-40">
+      <div
+        className={`bg-white border-2 ${selected ? 'border-yellow-500' : 'border-green-500'}  rounded-lg shadow-lg p-3 max-w-40`}
+      >
         <Handle type="target" position={Position.Left} />
 
         {isEditing ? (

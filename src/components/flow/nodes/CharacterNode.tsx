@@ -1,12 +1,12 @@
 import { useState, memo } from 'react';
-import { Handle, Position } from 'reactflow';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Handle, Position, type NodeProps } from 'reactflow';
+import { Pencil, Trash2, Copy } from 'lucide-react';
 import type { NodeData } from '../../../types';
 
-function CharacterNode({ data, id }: { data: NodeData; id: string }) {
+function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState(data.label);
-  console.log(data);
+
   const handleSave = () => {
     if (data.onUpdate) {
       data.onUpdate(id, name);
@@ -24,6 +24,13 @@ function CharacterNode({ data, id }: { data: NodeData; id: string }) {
     <div className="relative">
       <div className="absolute -top-2 -right-2 flex gap-1 z-10">
         <button
+          onClick={() => data.onDuplicate?.(id)}
+          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full p-1 shadow-md transition-colors"
+          title="Duplicate"
+        >
+          <Copy size={12} />
+        </button>
+        <button
           onClick={() => setIsEditing(!isEditing)}
           className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-1 shadow-md transition-colors"
           title="Edit"
@@ -39,7 +46,9 @@ function CharacterNode({ data, id }: { data: NodeData; id: string }) {
         </button>
       </div>
 
-      <div className="bg-white border-2 border-indigo-500 rounded-full shadow-lg px-4 py-3 min-w-35">
+      <div
+        className={`bg-white border-2 ${selected ? 'border-yellow-500' : 'border-indigo-500'} rounded-full shadow-lg px-4 py-3 min-w-35`}
+      >
         <Handle type="target" position={Position.Left} />
 
         <div className="flex flex-col items-center">

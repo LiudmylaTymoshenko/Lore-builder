@@ -2,7 +2,7 @@ export type Lore = {
   id: string;
   name: string;
   type: string;
-  image?: string;
+  imageUrl?: string | null;
 };
 
 export type Event = {
@@ -38,4 +38,5 @@ export type NodeData = {
   label: string;
   onDelete: (id: string) => void;
   onUpdate: (id: string, name: string) => void;
+  onDuplicate?: (id: string) => void; 
 }
