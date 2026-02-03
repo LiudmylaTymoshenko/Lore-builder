@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { loginSuccess } from '../features/auth/authSlice';
+import { loginThunk } from '../features/auth/authSlice';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAppDispatch } from '../app/hooks';
 
 export default function LoginPage() {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
   const [email, setEmail] = useState('');
@@ -12,14 +12,7 @@ export default function LoginPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    dispatch(
-      loginSuccess({
-        id: 'demo',
-        email,
-      }),
-    );
-
+    dispatch(loginThunk({ email, password }));
     navigate('/dashboard');
   };
 

@@ -4,6 +4,7 @@ import loreReducer from '../features/lore/loreSlice';
 import eventsReducer from '../features/events/eventsSlice';
 import charactersReducer from '../features/characters/charactersSlice';
 import connectionsReducer from '../features/connections/connectionsSlice';
+import { api } from './api';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,8 @@ export const store = configureStore({
     events: eventsReducer,
     characters: charactersReducer,
     connections: connectionsReducer,
+
+    [api.reducerPath]: api.reducer,
   },
 });
 
