@@ -1,5 +1,6 @@
 import { api } from '../../app/api';
-import type { Lore, CreateLorePayload, UpdateLorePayload } from './loreTypes';
+import type { Lore, UpdateLoreContentPayload } from '../../types';
+import type { CreateLorePayload } from './loreTypes';
 
 export const loreApi = api.injectEndpoints({
   endpoints: (builder) => ({
@@ -7,11 +8,8 @@ export const loreApi = api.injectEndpoints({
       query: () => '/lores',
     }),
 
-    getLore: builder.mutation<void, string>({
-      query: (id) => ({
-        url: `/lores/${id}`,
-        method: 'GET',
-      }),
+    getLore: builder.query<Lore, string>({
+      query: (id) => `/lores/${id}`,
     }),
 
     createLore: builder.mutation<Lore, CreateLorePayload>({
@@ -22,15 +20,16 @@ export const loreApi = api.injectEndpoints({
       }),
     }),
 
-    updateLore: builder.mutation<Lore, { id: string; data: UpdateLorePayload }>(
-      {
-        query: ({ id, data }) => ({
-          url: `/lores/${id}`,
-          method: 'PATCH',
-          body: data,
-        }),
-      },
-    ),
+    updateLore: builder.mutation<
+      Lore,
+      { id: string; data: UpdateLoreContentPayload }
+    >({
+      query: ({ id, data }) => ({
+        url: `/lores/${id}`,
+        method: 'PATCH',
+        body: data,
+      }),
+    }),
 
     deleteLore: builder.mutation<void, string>({
       query: (id) => ({

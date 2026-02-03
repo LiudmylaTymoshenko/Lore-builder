@@ -1,8 +1,15 @@
+import { type Node } from 'reactflow';
+
 export type Lore = {
   id: string;
   name: string;
   type: string;
   imageUrl?: string | null;
+
+  events: EventNodeType[];
+  characters: Character[];
+  connections: ConnectionType[];
+  nodes: Node[];
 };
 
 export type Event = {
@@ -38,5 +45,12 @@ export type NodeData = {
   label: string;
   onDelete: (id: string) => void;
   onUpdate: (id: string, name: string) => void;
-  onDuplicate?: (id: string) => void; 
-}
+  onDuplicate?: (id: string) => void;
+};
+
+export type UpdateLoreContentPayload = {
+  events: EventNodeType[];
+  characters: Character[];
+  connections: ConnectionType[];
+  nodes: Node[];
+};

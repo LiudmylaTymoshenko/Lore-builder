@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { authApi } from './authApi';
 
-export type User = { id: string; email: string };
+export type User = { id: string; email: string; password: string };
 export type AuthState = {
   user: User | null;
   accessToken: string | null;

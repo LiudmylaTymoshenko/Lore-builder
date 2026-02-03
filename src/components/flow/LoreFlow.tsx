@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ReactFlow, {
   Background,
   MiniMap,
@@ -19,90 +19,187 @@ import type { Character, ConnectionType, EventNodeType } from '../../types';
 import LoreSidebar from '../lore/LoreSidebar';
 import { FlowHelpControl } from './FlowHelpControl';
 import { X } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { useActiveLore } from '../../hooks/useActiveLore';
+import {
+  markDirty,
+  markSaved,
+  updateLore,
+} from '../../features/lore/loreSlice';
+import { selectDirty } from '../../features/lore/loreSelectors';
 
 const nodeTypes = {
   event: EventNode,
   character: CharacterNode,
 };
 
-function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
+interface FlowState {
+  events: EventNodeType[];
+  characters: Character[];
+  connections: ConnectionType[];
+  nodes: Node[];
+  edges: Edge[];
+}
+
+function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
+  if (!lore) {
+    return {
+      events: [],
+      characters: [],
+      connections: [],
+      nodes: [],
+      edges: [],
+    };
+  }
+  return {
+    events: lore.events ?? [],
+    characters: lore.characters ?? [],
+    connections: lore.connections ?? [],
+    nodes: lore.nodes ?? [],
+    edges: (lore.connections ?? []).map((c) => ({
+      id: c.id,
+      source: c.sourceId,
+      target: c.targetId,
+      type: 'simplebezier' as const,
+    })),
+  };
+}
+
+function LoreFlowInner({
+  loreId,
+  activeLore,
+}: {
+  loreId: string;
+  activeLore: ReturnType<typeof useActiveLore>;
+}) {
   const { fitView } = useReactFlow();
   const [showHelp, setShowHelp] = useState(false);
-  const [events, setEvents] = useState<EventNodeType[]>([]);
-  const [characters, setCharacters] = useState<Character[]>([]);
-  const [connections, setConnections] = useState<ConnectionType[]>([]);
 
-  const [nodes, setNodes] = useState<Node[]>([]);
-  const [edges, setEdges] = useState<Edge[]>([]);
+  const dispatch = useAppDispatch();
+  const dirty = useAppSelector(selectDirty);
+
+  const [flowState, setFlowState] = useState<FlowState>(() =>
+    buildInitialState(activeLore),
+  );
+
+  const { events, characters, connections, nodes, edges } = flowState;
+
+  useEffect(() => {
+    if (!dirty || !activeLore) return;
+
+    const payload = { events, characters, connections, nodes };
+
+    const t = setTimeout(async () => {
+      try {
+        await dispatch(
+          updateLore({ id: activeLore.id, data: payload }),
+        ).unwrap();
+        dispatch(markSaved());
+      } catch (e) {
+        console.error('Autosave failed', e);
+      }
+    }, 800);
+
+    return () => clearTimeout(t);
+  }, [events, characters, connections, nodes, dirty, activeLore, dispatch]);
 
   const handleUpdateEvent = useCallback((id: string, title: string) => {
-    setEvents((prev) => prev.map((e) => (e.id === id ? { ...e, title } : e)));
-    setNodes((nds) =>
-      nds.map((node) =>
+    setFlowState((s) => ({
+      ...s,
+      events: s.events.map((e) => (e.id === id ? { ...e, title } : e)),
+      nodes: s.nodes.map((node) =>
         node.id === id
           ? { ...node, data: { ...node.data, label: title } }
           : node,
       ),
-    );
+    }));
   }, []);
 
   const handleDeleteEvent = useCallback((id: string) => {
-    setEvents((prev) => prev.filter((e) => e.id !== id));
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-    setConnections((prev) =>
-      prev.filter((c) => c.sourceId !== id && c.targetId !== id),
-    );
-    setEdges((eds) =>
-      eds.filter((edge) => edge.source !== id && edge.target !== id),
-    );
+    setFlowState((s) => ({
+      ...s,
+      events: s.events.filter((e) => e.id !== id),
+      nodes: s.nodes.filter((node) => node.id !== id),
+      connections: s.connections.filter(
+        (c) => c.sourceId !== id && c.targetId !== id,
+      ),
+      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
+    }));
   }, []);
 
   const handleUpdateCharacter = useCallback((id: string, name: string) => {
-    setCharacters((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, name } : c)),
-    );
-    setNodes((nds) =>
-      nds.map((node) =>
+    setFlowState((s) => ({
+      ...s,
+      characters: s.characters.map((c) => (c.id === id ? { ...c, name } : c)),
+      nodes: s.nodes.map((node) =>
         node.id === id
           ? { ...node, data: { ...node.data, label: name } }
           : node,
       ),
-    );
+    }));
   }, []);
 
   const handleDeleteCharacter = useCallback((id: string) => {
-    setCharacters((prev) => prev.filter((c) => c.id !== id));
-    setNodes((nds) => nds.filter((node) => node.id !== id));
-    setConnections((prev) =>
-      prev.filter((c) => c.sourceId !== id && c.targetId !== id),
-    );
-    setEdges((eds) =>
-      eds.filter((edge) => edge.source !== id && edge.target !== id),
-    );
+    setFlowState((s) => ({
+      ...s,
+      characters: s.characters.filter((c) => c.id !== id),
+      nodes: s.nodes.filter((node) => node.id !== id),
+      connections: s.connections.filter(
+        (c) => c.sourceId !== id && c.targetId !== id,
+      ),
+      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
+    }));
   }, []);
 
-  const handleDuplicateNode = (id: string) => {
-    setNodes((nodes) => {
-      const node = nodes.find((n) => n.id === id);
-      if (!node) return nodes;
+  const handleDuplicateNode = useCallback(
+    (id: string) => {
+      setFlowState((s) => {
+        const node = s.nodes.find((n) => n.id === id);
+        if (!node || node.type !== 'character') return s;
 
-      const newNode = {
-        id: crypto.randomUUID(),
-        type: node.type,
-        position: {
+        const character = s.characters.find((c) => c.id === id);
+        if (!character) return s;
+
+        const newId = crypto.randomUUID();
+
+        const position = {
           x: node.position.x + 40,
           y: node.position.y + 60,
-        },
-        data: {
-          ...node.data,
-        },
-        parentNode: undefined,
-        extent: undefined,
-      };
+        };
 
-      return [...nodes, newNode];
-    });
-  };
+        return {
+          ...s,
+          characters: [
+            ...s.characters,
+            {
+              ...character,
+              id: newId,
+              name: `${character.name} (copy)`,
+              position,
+            },
+          ],
+          nodes: [
+            ...s.nodes,
+            {
+              ...node,
+              id: newId,
+              position,
+              data: {
+                ...node.data,
+                label: `${character.name} (copy)`,
+              },
+              parentNode: undefined,
+              extent: undefined,
+            },
+          ],
+        };
+      });
+
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
+
   const handleAddEvent = useCallback(() => {
     const newEvent: EventNodeType = {
       id: `event-${Date.now()}`,
@@ -113,22 +210,27 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
         y: Math.random() * 400,
       },
     };
-    setEvents((prev) => [...prev, newEvent]);
 
-    setNodes((nds) => [
-      ...nds,
-      {
-        id: newEvent.id,
-        type: 'event',
-        data: {
-          label: newEvent.title,
-          onUpdate: handleUpdateEvent,
-          onDelete: handleDeleteEvent,
+    setFlowState((s) => ({
+      ...s,
+      events: [...s.events, newEvent],
+      nodes: [
+        ...s.nodes,
+        {
+          id: newEvent.id,
+          type: 'event',
+          data: {
+            label: newEvent.title,
+            onUpdate: handleUpdateEvent,
+            onDelete: handleDeleteEvent,
+          },
+          position: newEvent.position,
         },
-        position: newEvent.position,
-      },
-    ]);
-  }, [loreId, handleUpdateEvent, handleDeleteEvent]);
+      ],
+    }));
+
+    dispatch(markDirty());
+  }, [loreId, handleUpdateEvent, handleDeleteEvent, dispatch]);
 
   const handleAddCharacter = useCallback(() => {
     const newChar: Character = {
@@ -140,82 +242,127 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
         y: Math.random() * 400,
       },
     };
-    setCharacters((prev) => [...prev, newChar]);
 
-    setNodes((nds) => [
-      ...nds,
-      {
-        id: newChar.id,
-        type: 'character',
-        data: {
-          label: newChar.name,
-          onUpdate: handleUpdateCharacter,
-          onDelete: handleDeleteCharacter,
-          onDuplicate: handleDuplicateNode,
+    setFlowState((s) => ({
+      ...s,
+      characters: [...s.characters, newChar],
+      nodes: [
+        ...s.nodes,
+        {
+          id: newChar.id,
+          type: 'character',
+          data: {
+            label: newChar.name,
+            onUpdate: handleUpdateCharacter,
+            onDelete: handleDeleteCharacter,
+            onDuplicate: handleDuplicateNode,
+          },
+          position: newChar.position,
         },
-        position: newChar.position,
-      },
-    ]);
-  }, [loreId, handleUpdateCharacter, handleDeleteCharacter]);
+      ],
+    }));
 
-  const onNodesChange = useCallback((changes: NodeChange[]) => {
-    setNodes((nds) => applyNodeChanges(changes, nds));
+    dispatch(markDirty());
+  }, [
+    loreId,
+    handleUpdateCharacter,
+    handleDeleteCharacter,
+    handleDuplicateNode,
+    dispatch,
+  ]);
 
-    changes.forEach((change) => {
-      if (
-        change.type === 'position' &&
-        !change.dragging &&
-        change.position &&
-        change.id
-      ) {
-        const newPosition = change.position;
-        setEvents((prev) =>
-          prev.map((e) =>
-            e.id === change.id ? { ...e, position: newPosition } : e,
-          ),
-        );
-        setCharacters((prev) =>
-          prev.map((c) =>
-            c.id === change.id ? { ...c, position: newPosition } : c,
-          ),
-        );
-      }
-    });
-  }, []);
+  const onNodesChange = useCallback(
+    (changes: NodeChange[]) => {
+      setFlowState((s) => {
+        let {
+          nodes: updatedNodes,
+          events: updatedEvents,
+          characters: updatedCharacters,
+        } = s;
+
+        updatedNodes = applyNodeChanges(changes, updatedNodes);
+
+        changes.forEach((change) => {
+          if (
+            change.type === 'position' &&
+            !change.dragging &&
+            change.position &&
+            change.id
+          ) {
+            const pos = change.position;
+            updatedEvents = updatedEvents.map((e) =>
+              e.id === change.id ? { ...e, position: pos } : e,
+            );
+            updatedCharacters = updatedCharacters.map((c) =>
+              c.id === change.id ? { ...c, position: pos } : c,
+            );
+          }
+        });
+
+        return {
+          ...s,
+          nodes: updatedNodes,
+          events: updatedEvents,
+          characters: updatedCharacters,
+        };
+      });
+
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
   const handleConnect = useCallback(
     (params: Connection) => {
       if (!params.source || !params.target) return;
+
       const newConnection: ConnectionType = {
         id: `conn-${Date.now()}`,
         loreId,
         sourceId: params.source,
         targetId: params.target,
       };
-      setConnections((prev) => [...prev, newConnection]);
 
-      setEdges((eds) => [
-        ...eds,
-        {
-          id: newConnection.id,
-          source: newConnection.sourceId,
-          target: newConnection.targetId,
-          type: 'simplebezier',
-        },
-      ]);
+      setFlowState((s) => ({
+        ...s,
+        connections: [...s.connections, newConnection],
+        edges: [
+          ...s.edges,
+          {
+            id: newConnection.id,
+            source: newConnection.sourceId,
+            target: newConnection.targetId,
+            type: 'simplebezier',
+          },
+        ],
+      }));
+
+      dispatch(markDirty());
     },
-    [loreId],
+    [loreId, dispatch],
   );
 
-  const onEdgesChange = useCallback((changes: EdgeChange[]) => {
-    setEdges((eds) => applyEdgeChanges(changes, eds));
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange[]) => {
+      setFlowState((s) => {
+        const updatedEdges = applyEdgeChanges(changes, s.edges);
+        const removedIds = new Set(
+          changes.filter((c) => c.type === 'remove').map((c) => c.id),
+        );
 
-    changes.forEach((change) => {
-      if (change.type === 'remove') {
-        setConnections((prev) => prev.filter((c) => c.id !== change.id));
-      }
-    });
-  }, []);
+        return {
+          ...s,
+          edges: updatedEdges,
+          connections: removedIds.size
+            ? s.connections.filter((c) => !removedIds.has(c.id))
+            : s.connections,
+        };
+      });
+
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
   const handleLocateEvent = (nodeId: string) => {
     fitView({ nodes: [{ id: nodeId }], duration: 600 });
@@ -276,10 +423,17 @@ function LoreFlowInner({ loreId = 'default-lore' }: { loreId: string }) {
   );
 }
 
-export default function LoreFlow(props: { loreId: string }) {
+export default function LoreFlow({
+  loreId = 'default-lore',
+}: {
+  loreId: string;
+}) {
+  const activeLore = useActiveLore();
+  if (!activeLore) return null;
+
   return (
     <ReactFlowProvider>
-      <LoreFlowInner {...props} />
+      <LoreFlowInner key={loreId} loreId={loreId} activeLore={activeLore} />
     </ReactFlowProvider>
   );
 }

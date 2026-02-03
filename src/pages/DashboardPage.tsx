@@ -9,7 +9,7 @@ export default function DashboardPage() {
   const dispatch = useAppDispatch();
 
   const user = useAppSelector((s) => s.auth.user);
-  const lores = useAppSelector((s) => s.lore.items);
+  const lores = useAppSelector((s) => s.lore.items ?? []);
   const loading = useAppSelector((s) => s.lore.loading);
 
   useEffect(() => {
