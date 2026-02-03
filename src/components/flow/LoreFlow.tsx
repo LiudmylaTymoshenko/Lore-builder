@@ -368,6 +368,52 @@ function LoreFlowInner({
     fitView({ nodes: [{ id: nodeId }], duration: 600 });
   };
 
+  function withHandlers(node: Node): Node {
+    if (node.type === 'event') {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onUpdate: handleUpdateEvent,
+          onDelete: handleDeleteEvent,
+        },
+      };
+    }
+
+    if (node.type === 'character') {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onUpdate: handleUpdateCharacter,
+          onDelete: handleDeleteCharacter,
+          onDuplicate: handleDuplicateNode,
+        },
+      };
+    }
+
+    return node;
+  }
+
+  useEffect(() => {
+    if (!activeLore) return;
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setFlowState((s) => ({
+      ...s,
+      nodes: (activeLore.nodes ?? []).map(withHandlers),
+      events: activeLore.events ?? [],
+      characters: activeLore.characters ?? [],
+      connections: activeLore.connections ?? [],
+      edges: (activeLore.connections ?? []).map((c) => ({
+        id: c.id,
+        source: c.sourceId,
+        target: c.targetId,
+        type: 'simplebezier',
+      })),
+    }));
+  }, [activeLore?.id]);
+
   return (
     <div style={{ width: '100vw', display: 'flex' }}>
       <LoreSidebar

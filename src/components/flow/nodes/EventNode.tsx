@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { NodeData } from '../../../types';
@@ -78,4 +78,4 @@ function EventNode({ data, id, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default memo(EventNode);
+export default EventNode;

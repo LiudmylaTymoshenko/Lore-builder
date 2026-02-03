@@ -1,4 +1,4 @@
-import { useState, memo } from 'react';
+import { useState } from 'react';
 import { Handle, Position, type NodeProps } from 'reactflow';
 import { Pencil, Trash2, Copy } from 'lucide-react';
 import type { NodeData } from '../../../types';
@@ -87,4 +87,4 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default memo(CharacterNode);
+export default CharacterNode;
