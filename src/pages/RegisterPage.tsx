@@ -58,6 +58,15 @@ export default function RegisterPage() {
             className="w-full rounded-lg border border-[#2b192e] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b192e] focus:border-transparent"
           />
 
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            type="password"
+            required
+            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+
           <button
             type="submit"
             className="w-full cursor-pointer rounded-lg bg-[#2b192e] py-2.5 text-sm font-medium text-white hover:bg-[#4d2854] transition"
