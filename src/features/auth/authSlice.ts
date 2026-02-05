@@ -1,50 +1,38 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import type { AppDispatch } from '../../app/store';
 import { authApi } from './authApi';
 
-export type User = {
-  id: string;
-  email: string;
-};
-
+export type User = { id: string; email: string; password: string };
 export type AuthState = {
   user: User | null;
-  token: string | null;
+  accessToken: string | null;
   isAuthenticated: boolean;
+  loading: boolean;
 };
 
 const storedUser = localStorage.getItem('auth_user');
 const storedToken = localStorage.getItem('auth_token');
 
 const initialState: AuthState = {
-  user:
-    storedUser && storedUser !== 'undefined' ? JSON.parse(storedUser) : null,
-  isAuthenticated: !!storedToken && storedToken !== 'undefined',
-  token: storedToken && storedToken !== 'undefined' ? storedToken : null,
+  user: storedUser ? JSON.parse(storedUser) : null,
+  isAuthenticated: !!storedToken,
+  accessToken: storedToken,
+  loading: false,
 };
 
 export const loginThunk = createAsyncThunk<
   { user: User; accessToken: string },
-  { email: string; password: string },
-  { dispatch: AppDispatch }
+  { email: string; password: string }
 >('auth/loginThunk', async (credentials, { dispatch }) => {
-  const result = await dispatch(
-    authApi.endpoints.login.initiate(credentials),
-  ).unwrap();
-
-  return result;
+  return await dispatch(authApi.endpoints.login.initiate(credentials)).unwrap();
 });
 
 export const registerThunk = createAsyncThunk<
   { user: User; accessToken: string },
-  { email: string; password: string },
-  { dispatch: AppDispatch }
+  { email: string; password: string }
 >('auth/registerThunk', async (credentials, { dispatch }) => {
-  const result = await dispatch(
+  return await dispatch(
     authApi.endpoints.register.initiate(credentials),
   ).unwrap();
-
-  return result;
 });
 
 const authSlice = createSlice({
@@ -53,31 +41,38 @@ const authSlice = createSlice({
   reducers: {
     logout(state) {
       state.user = null;
-      state.token = null;
+      state.accessToken = null;
       state.isAuthenticated = false;
 
-      // Clear localStorage on logout
       localStorage.removeItem('auth_user');
       localStorage.removeItem('auth_token');
     },
   },
   extraReducers: (builder) => {
     builder
+      .addCase(loginThunk.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.token = action.payload.accessToken; // Changed from token to accessToken
+        state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
+        state.loading = false;
 
         localStorage.setItem('auth_user', JSON.stringify(action.payload.user));
-        localStorage.setItem('auth_token', action.payload.accessToken); // Changed from token to accessToken
+        localStorage.setItem('auth_token', action.payload.accessToken);
+      })
+      .addCase(registerThunk.pending, (state) => {
+        state.loading = true;
       })
       .addCase(registerThunk.fulfilled, (state, action) => {
         state.user = action.payload.user;
-        state.token = action.payload.accessToken; // Changed from token to accessToken
+        state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
+        state.loading = false;
 
         localStorage.setItem('auth_user', JSON.stringify(action.payload.user));
-        localStorage.setItem('auth_token', action.payload.accessToken); // Changed from token to accessToken
+        localStorage.setItem('auth_token', action.payload.accessToken);
       });
   },
 });

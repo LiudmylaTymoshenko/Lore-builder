@@ -17,8 +17,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6">
+    <div
+      className="min-h-screen flex items-center justify-center px-4 bg-cover bg-center"
+      style={{ backgroundImage: "url('/assets/Landing.png')" }}
+    >
+      <div className="w-full max-w-md bg-[#e2d0e4]/70  rounded-2xl shadow-lg p-8 space-y-6">
         {/* Back */}
         <Link
           to="/"
@@ -43,7 +46,16 @@ export default function RegisterPage() {
             placeholder="Email"
             type="email"
             required
-            className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="w-full rounded-lg border border-[#2b192e] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b192e] focus:border-transparent"
+          />
+
+          <input
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            type="password"
+            required
+            className="w-full rounded-lg border border-[#2b192e] px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#2b192e] focus:border-transparent"
           />
 
           <input
@@ -57,7 +69,7 @@ export default function RegisterPage() {
 
           <button
             type="submit"
-            className="w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-medium text-white hover:bg-indigo-700 transition"
+            className="w-full cursor-pointer rounded-lg bg-[#2b192e] py-2.5 text-sm font-medium text-white hover:bg-[#4d2854] transition"
           >
             Create account
           </button>
@@ -67,7 +79,7 @@ export default function RegisterPage() {
           Already have an account?{' '}
           <Link
             to="/login"
-            className="text-indigo-600 hover:underline font-medium"
+            className="text-[#2b192e] hover:underline font-medium"
           >
             Login
           </Link>

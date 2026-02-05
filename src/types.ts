@@ -1,8 +1,17 @@
+import { type Node } from 'reactflow';
+import type { CreateSourcePayload } from './features/lore/loreTypes';
+
 export type Lore = {
   id: string;
   name: string;
   type: string;
-  image?: string;
+  imageUrl?: string | null;
+  sources: CreateSourcePayload[];
+
+  events: EventNodeType[];
+  characters: Character[];
+  connections: ConnectionType[];
+  nodes: Node[];
 };
 
 export type Event = {
@@ -38,4 +47,20 @@ export type NodeData = {
   label: string;
   onDelete: (id: string) => void;
   onUpdate: (id: string, name: string) => void;
-}
+  onDuplicate?: (id: string) => void;
+};
+
+export type UpdateLoreContentPayload = {
+  events: EventNodeType[];
+  characters: Character[];
+  connections: ConnectionType[];
+  nodes: Node[];
+};
+
+export type LoreDot = {
+  x: number;
+  y: number;
+  layer: number;
+  delay: string;
+  driftDuration: string;
+};

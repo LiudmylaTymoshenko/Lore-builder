@@ -1,9 +1,9 @@
-import { useState, memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import { useState } from 'react';
+import { Handle, Position, type NodeProps } from 'reactflow';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { NodeData } from '../../../types';
 
-function EventNode({ data, id }: { data: NodeData; id: string }) {
+function EventNode({ data, id, selected }: NodeProps<NodeData>) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
 
@@ -25,7 +25,7 @@ function EventNode({ data, id }: { data: NodeData; id: string }) {
       <div className="absolute -top-2 -right-2 flex gap-1 z-10">
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="bg-blue-500 hover:bg-blue-600 text-white rounded-full p-1 shadow-md transition-colors"
+          className="bg-[#50006c] hover:bg-[#68028d] text-white rounded-full p-1 shadow-md transition-colors"
           title="Edit"
         >
           <Pencil size={12} />
@@ -39,8 +39,19 @@ function EventNode({ data, id }: { data: NodeData; id: string }) {
         </button>
       </div>
 
-      <div className="bg-white border-2 border-green-500 rounded-lg shadow-lg p-3 max-w-40">
-        <Handle type="target" position={Position.Left} />
+      <div
+        className={`bg-white border-3 ${selected ? 'border-yellow-500' : 'border-[#ab36bd]'}  rounded-lg shadow-lg p-3 max-w-40`}
+      >
+        <Handle
+          style={{
+            width: 15,
+            height: 15,
+            background: '#68028d',
+            border: '2px solid white',
+          }}
+          type="target"
+          position={Position.Left}
+        />
 
         {isEditing ? (
           <textarea
@@ -63,17 +74,26 @@ function EventNode({ data, id }: { data: NodeData; id: string }) {
           />
         ) : (
           <div
-            className="font-semibold text-blue-700 text-sm wrap-break-word whitespace-pre-wrap cursor-text"
+            className="font-semibold text-[#2b192e] text-sm wrap-break-word whitespace-pre-wrap cursor-text"
             onDoubleClick={() => setIsEditing(true)}
           >
             {data.label}
           </div>
         )}
 
-        <Handle type="source" position={Position.Right} />
+        <Handle
+          style={{
+            width: 15,
+            height: 15,
+            background: '#68028d',
+            border: '2px solid white',
+          }}
+          type="source"
+          position={Position.Right}
+        />
       </div>
     </div>
   );
 }
 
-export default memo(EventNode);
+export default EventNode;

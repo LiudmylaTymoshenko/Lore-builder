@@ -1,5 +1,131 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 body {
   font-family: 'Inter', sans-serif;
+  background-color: #e3d3e7;
+}
+
+#root {
+  height: 100vh;
+}
+
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fade-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes sun-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes text-flicker {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  5% {
+    opacity: 0.5;
+  }
+  10% {
+    opacity: 0.65;
+  }
+  15% {
+    opacity: 0.55;
+  }
+  20%,
+  80% {
+    opacity: 0.6;
+  }
+  85% {
+    opacity: 0.65;
+  }
+  90% {
+    opacity: 0.5;
+  }
+  95% {
+    opacity: 0.6;
+  }
+}
+
+.animate-orbit {
+  animation: orbit linear infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.animate-fade-pulse {
+  animation: fade-pulse 2s ease-in-out infinite;
+  will-change: opacity;
+}
+
+.animate-sun-pulse {
+  animation: sun-pulse 2s ease-in-out infinite;
+}
+
+.animate-text-flicker {
+  animation: text-flicker 4s ease-in-out infinite;
+}
+
+@keyframes dot-drift {
+  0% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(6px, -4px);
+  }
+  50% {
+    transform: translate(-5px, 6px);
+  }
+  75% {
+    transform: translate(-7px, -3px);
+  }
+  100% {
+    transform: translate(0, 0);
+  }
+}
+
+.animate-dot {
+  fill: #2b192e;
+  opacity: 0.75;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation:
+    fade-pulse 2s ease-in-out infinite,
+    dot-drift ease-in-out infinite;
+}
+
+.orbit-fast {
+  animation-duration: 6s;
+}
+
+.orbit-medium {
+  animation-duration: 9s;
+}
+
+.orbit-slow {
+  animation-duration: 14s;
+}
+
+.reverse {
+  animation-direction: reverse;
 }
