@@ -1,10 +1,12 @@
 import { type Node } from 'reactflow';
+import type { CreateSourcePayload } from './features/lore/loreTypes';
 
 export type Lore = {
   id: string;
   name: string;
   type: string;
   imageUrl?: string | null;
+  sources: CreateSourcePayload[];
 
   events: EventNodeType[];
   characters: Character[];
@@ -53,4 +55,12 @@ export type UpdateLoreContentPayload = {
   characters: Character[];
   connections: ConnectionType[];
   nodes: Node[];
+};
+
+export type LoreDot = {
+  x: number;
+  y: number;
+  layer: number;
+  delay: string;
+  driftDuration: string;
 };

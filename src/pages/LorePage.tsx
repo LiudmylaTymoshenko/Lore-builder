@@ -4,6 +4,7 @@ import LoreFlow from '../components/flow/LoreFlow';
 import { useEffect } from 'react';
 import { useAppDispatch, useAppSelector } from '../app/hooks';
 import { getLore, setActiveLore } from '../features/lore/loreSlice';
+import { LoreSpinner } from '../components/lore/LoreSpinner';
 
 export default function LorePage() {
   const { id } = useParams();
@@ -21,7 +22,12 @@ export default function LorePage() {
 
   if (!id) return <div className="p-8">Lore not found</div>;
   if (isLoading) return <div className="p-8">Loading…</div>;
-  if (!lore) return <div className="p-8">Lore not found</div>;
+  if (!lore)
+    return (
+      <div className="p-8 h-full">
+        <LoreSpinner />
+      </div>
+    );
 
   return (
     <div className="h-screen flex flex-col bg-slate-100">

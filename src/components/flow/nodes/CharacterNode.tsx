@@ -25,14 +25,14 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
       <div className="absolute -top-2 -right-2 flex gap-1 z-10">
         <button
           onClick={() => data.onDuplicate?.(id)}
-          className="bg-emerald-500 hover:bg-emerald-600 text-white rounded-full p-1 shadow-md transition-colors"
+          className="bg-[#7b15a0] hover:bg-[#9f20cd] text-white rounded-full p-1 shadow-md transition-colors"
           title="Duplicate"
         >
           <Copy size={12} />
         </button>
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="bg-indigo-500 hover:bg-indigo-600 text-white rounded-full p-1 shadow-md transition-colors"
+          className="bg-[#50006c] hover:bg-[#68028d] text-white rounded-full p-1 shadow-md transition-colors"
           title="Edit"
         >
           <Pencil size={12} />
@@ -47,9 +47,18 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
       </div>
 
       <div
-        className={`bg-white border-2 ${selected ? 'border-yellow-500' : 'border-indigo-500'} rounded-full shadow-lg px-4 py-3 min-w-35`}
+        className={`bg-white border-3 ${selected ? 'border-yellow-500' : 'border-[#2b192e]'} rounded-full shadow-lg px-4 py-3 min-w-35`}
       >
-        <Handle type="target" position={Position.Left} />
+        <Handle
+          style={{
+            width: 15,
+            height: 15,
+            background: '#68028d',
+            border: '2px solid white',
+          }}
+          type="target"
+          position={Position.Left}
+        />
 
         <div className="flex flex-col items-center">
           {isEditing ? (
@@ -73,7 +82,7 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
             />
           ) : (
             <div
-              className="font-medium text-indigo-700 text-sm cursor-text"
+              className="font-medium border-[#2b192e] text-sm cursor-text"
               onDoubleClick={() => setIsEditing(true)}
             >
               {data.label}
@@ -81,7 +90,16 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
           )}
         </div>
 
-        <Handle type="source" position={Position.Right} />
+        <Handle
+          style={{
+            width: 15,
+            height: 15,
+            background: '#68028d',
+            border: '2px solid white',
+          }}
+          type="source"
+          position={Position.Right}
+        />
       </div>
     </div>
   );

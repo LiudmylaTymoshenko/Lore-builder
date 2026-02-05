@@ -74,6 +74,7 @@ function LoreFlowInner({
 }) {
   const { fitView } = useReactFlow();
   const [showHelp, setShowHelp] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const dispatch = useAppDispatch();
   const dirty = useAppSelector(selectDirty);
@@ -427,9 +428,12 @@ function LoreFlowInner({
         handleUpdateCharacter={handleUpdateCharacter}
         handleDeleteCharacter={handleDeleteCharacter}
         handleLocateEvent={handleLocateEvent}
+        activeLore={activeLore}
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div style={{ flex: 1, width: '100%', position: 'relative' }}>
+      <div className="flex-1 w-full relative">
         <ReactFlow
           nodes={nodes}
           edges={edges}

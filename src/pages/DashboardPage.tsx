@@ -4,6 +4,7 @@ import { logout } from '../features/auth/authSlice';
 import { deleteLore, fetchLores } from '../features/lore/loreSlice';
 import { useAppSelector, useAppDispatch } from '../app/hooks';
 import { Trash2 } from 'lucide-react';
+import { LoreSpinner } from '../components/lore/LoreSpinner';
 
 export default function DashboardPage() {
   const dispatch = useAppDispatch();
@@ -22,8 +23,16 @@ export default function DashboardPage() {
     dispatch(deleteLore(id));
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f4f2f2]">
+        <LoreSpinner text='Synthesizing lores…' />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-[#f4f2f2]">
       <header className="flex items-center justify-between px-8 py-4 bg-white shadow">
         <h1 className="text-xl font-semibold">Lore Builder</h1>
 
@@ -39,23 +48,17 @@ export default function DashboardPage() {
       </header>
 
       <main className="p-8 max-w-6xl mx-auto space-y-8">
-        <div className="bg-white rounded-2xl shadow p-6 space-y-4">
-          <Link
-            to="/lore/new"
-            className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 transition"
-          >
-            + Create Lore
-          </Link>
-        </div>
+        <Link
+          to="/lore/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-[#2b192e] px-4 py-2 text-white hover:bg-[#543859] transition"
+        >
+          + Create Lore
+        </Link>
 
         <section className="space-y-4">
           <h2 className="text-lg font-semibold">Your lores</h2>
 
-          {loading ? (
-            <div className="bg-white rounded-2xl shadow p-8 text-center">
-              <p className="text-gray-500">Loading lores…</p>
-            </div>
-          ) : lores.length === 0 ? (
+          {lores.length === 0 ? (
             <div className="bg-white rounded-2xl shadow p-8 text-center space-y-3">
               <p className="text-gray-500">You don’t have any lore yet.</p>
               <p className="text-sm text-gray-400">
@@ -63,7 +66,7 @@ export default function DashboardPage() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid lg:grid-cols-3 gap-6">
               {lores.map((lore) => (
                 <div
                   key={lore.id}
@@ -75,14 +78,21 @@ export default function DashboardPage() {
                   }
                 >
                   <div className="flex w-full justify-end">
-                    <Trash2
-                      onClick={() => handleDelete(lore.id)}
-                      className="w-4 h-4 text-red-500 cursor-pointer"
-                    />
+                    <div className=" rounded-full bg-gray-50/70 p-1">
+                      <Trash2
+                        onClick={() => handleDelete(lore.id)}
+                        className="w-4 h-4 text-red-500 cursor-pointer"
+                      />
+                    </div>
                   </div>
                   <div className="my-4 p-2 rounded-xl bg-gray-50/70">
                     <h2 className="font-semibold text-lg">{lore.name}</h2>
                     <p className="text-sm text-gray-500 italic">{lore.type}</p>
+                    {lore.sources?.map((source) => (
+                      <p className="text-sm text-gray-500 italic text-end">
+                        {source.title}
+                      </p>
+                    ))}
                   </div>
                   <div className="flex w-full justify-end">
                     <Link
@@ -90,13 +100,13 @@ export default function DashboardPage() {
                       className="
                         inline-flex items-center gap-1
                         rounded-lg
-                        bg-emerald-600 px-4 py-2
+                        bg-[#50006c] px-4 py-2
                         text-sm font-medium text-white
                         shadow-sm
                         transition
-                        hover:bg-emerald-700
+                        hover:bg-[#6c0293]
                         active:scale-95
-                        focus:outline-none focus:ring-2 focus:ring-emerald-400
+                        focus:outline-none focus:ring-2 focus:ring-[#9700ce]
                         "
                     >
                       Details
