@@ -6,6 +6,7 @@ export type AuthState = {
   user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
+  loading: boolean;
 };
 
 const storedUser = localStorage.getItem('auth_user');
@@ -15,6 +16,7 @@ const initialState: AuthState = {
   user: storedUser ? JSON.parse(storedUser) : null,
   isAuthenticated: !!storedToken,
   accessToken: storedToken,
+  loading: false,
 };
 
 export const loginThunk = createAsyncThunk<
@@ -48,18 +50,26 @@ const authSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(loginThunk.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
+        state.loading = false;
 
         localStorage.setItem('auth_user', JSON.stringify(action.payload.user));
         localStorage.setItem('auth_token', action.payload.accessToken);
+      })
+      .addCase(registerThunk.pending, (state) => {
+        state.loading = true;
       })
       .addCase(registerThunk.fulfilled, (state, action) => {
         state.user = action.payload.user;
         state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
+        state.loading = false;
 
         localStorage.setItem('auth_user', JSON.stringify(action.payload.user));
         localStorage.setItem('auth_token', action.payload.accessToken);

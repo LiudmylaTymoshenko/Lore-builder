@@ -70,7 +70,7 @@ export default function LoreSidebar({
     <>
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed w-8 top-25 left-5 z-998 lg:hidden bg-white p-2 rounded shadow"
+        className="fixed w-14 top-25 left-2 z-998 lg:hidden bg-[#1e1120]/45 backdrop-blur-md border-2 border-white/20 p-2 rounded-lg shadow-xl text-white"
       >
         ☰
       </button>
@@ -82,7 +82,7 @@ export default function LoreSidebar({
         />
       )}
       <aside
-        className={`w-72 bg-white border-r p-4 space-y-4 overflow-y-auto h-screen
+        className={`w-72 bg-[#1e1120] backdrop-blur-md border-r-2 border-white/10 p-4 space-y-4 overflow-y-auto h-screen
     lg:relative lg:translate-x-0
     fixed top-0 left-0 z-999
     transition-transform duration-300 ease-in-out
@@ -91,12 +91,15 @@ export default function LoreSidebar({
           height: '100vh',
         }}
       >
-        <h2 className="text-lg font-bold">Lore Builder</h2>
+        <h2 className="text-xl font-bold text-white">Lore Builder</h2>
+
         <div className="flex gap-2">
           <button
             onClick={() => handleTabChange('events')}
-            className={`flex-1 cursor-pointer rounded px-2 py-1 text-sm ${
-              tab === 'events' ? 'bg-[#50006c] text-white' : 'bg-gray-100'
+            className={`flex-1 cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+              tab === 'events'
+                ? 'bg-[#6b3f70] text-white shadow-lg'
+                : 'bg-white/10 text-white/70 hover:bg-white/15'
             }`}
           >
             Events ({events.length})
@@ -104,8 +107,10 @@ export default function LoreSidebar({
 
           <button
             onClick={() => handleTabChange('characters')}
-            className={`flex-1 cursor-pointer rounded px-2 py-1 text-sm ${
-              tab === 'characters' ? 'bg-[#50006c] text-white' : 'bg-gray-100'
+            className={`flex-1 cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold transition-all ${
+              tab === 'characters'
+                ? 'bg-[#6b3f70] text-white shadow-lg'
+                : 'bg-white/10 text-white/70 hover:bg-white/15'
             }`}
           >
             Characters ({characters.length})
@@ -116,7 +121,7 @@ export default function LoreSidebar({
           <>
             <button
               onClick={handleAddEvent}
-              className="w-full cursor-pointer rounded bg-[#50006c] py-2 text-sm text-white hover:bg-[#6c0293]"
+              className="w-full cursor-pointer rounded-lg bg-[#6b3f70] hover:bg-[#8b5a8f] py-2.5 text-sm font-bold text-white transition-all shadow-lg"
             >
               + Add Event
             </button>
@@ -125,7 +130,7 @@ export default function LoreSidebar({
               {pagedEvents.map((e) => (
                 <li
                   key={e.id}
-                  className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
+                  className="rounded-lg border-2 border-white/10 px-3 py-2.5 text-sm bg-white/10 backdrop-blur-md hover:bg-white/15 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     {editingId === e.id ? (
@@ -145,13 +150,13 @@ export default function LoreSidebar({
                             setEditingId(null);
                           }
                         }}
-                        className="flex-1 border rounded px-2 py-1 text-xs resize-none min-h-15"
+                        className="flex-1 border-2 border-white/20 bg-white/10 rounded-lg px-2 py-1.5 text-xs resize-none min-h-15 text-white placeholder:text-white/50"
                         rows={2}
                         autoFocus
                       />
                     ) : (
                       <span
-                        className="flex-1 wrap-break-word whitespace-pre-wrap max-w-44"
+                        className="flex-1 wrap-break-word whitespace-pre-wrap max-w-44 text-white"
                         onDoubleClick={() => {
                           setEditingId(e.id);
                           setEditingValue(e.title);
@@ -168,8 +173,8 @@ export default function LoreSidebar({
                             y: e.position.y,
                           })
                         }
-                        className="text-[#432548] cursor-pointer hover:text-[#190f1b]"
-                        title="Edit"
+                        className="text-white/70 cursor-pointer hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
+                        title="Locate"
                       >
                         <MapPin size={14} />
                       </button>
@@ -178,14 +183,14 @@ export default function LoreSidebar({
                           setEditingId(e.id);
                           setEditingValue(e.title);
                         }}
-                        className="text-[#2b192e] cursor-pointer hover:text-[#190f1b]"
+                        className="text-white/70 cursor-pointer hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
                         title="Edit"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => handleDeleteEvent(e.id)}
-                        className="text-red-600 cursor-pointer hover:text-red-800"
+                        className="text-red-300 cursor-pointer hover:text-red-200 transition-colors p-1 hover:bg-red-500/20 rounded"
                         title="Delete"
                       >
                         <Trash2 size={14} />
@@ -202,7 +207,7 @@ export default function LoreSidebar({
           <>
             <button
               onClick={handleAddCharacter}
-              className="w-full cursor-pointer rounded bg-[#50006c] py-2 text-sm text-white hover:bg-[#6c0293]"
+              className="w-full cursor-pointer rounded-lg bg-[#6b3f70] hover:bg-[#8b5a8f] py-2.5 text-sm font-bold text-white transition-all shadow-lg"
             >
               + Add Character
             </button>
@@ -211,7 +216,7 @@ export default function LoreSidebar({
               {pagedCharacters.map((c) => (
                 <li
                   key={c.id}
-                  className="rounded border px-3 py-2 text-sm bg-white hover:bg-gray-50"
+                  className="rounded-lg border-2 border-white/10 px-3 py-2.5 text-sm bg-white/10 backdrop-blur-md hover:bg-white/15 transition-all"
                 >
                   <div className="flex items-start justify-between gap-2">
                     {editingId === c.id ? (
@@ -232,12 +237,12 @@ export default function LoreSidebar({
                             setEditingId(null);
                           }
                         }}
-                        className="flex-1 border rounded px-2 py-1 text-xs"
+                        className="flex-1 border-2 border-white/20 bg-white/10 rounded-lg px-2 py-1.5 text-xs text-white placeholder:text-white/50"
                         autoFocus
                       />
                     ) : (
                       <span
-                        className="flex-1"
+                        className="flex-1 text-white"
                         onDoubleClick={() => {
                           setEditingId(c.id);
                           setEditingValue(c.name);
@@ -252,14 +257,14 @@ export default function LoreSidebar({
                           setEditingId(c.id);
                           setEditingValue(c.name);
                         }}
-                        className="text-[#2b192e]  cursor-pointer hover:text-[#190f1b]"
+                        className="text-white/70 cursor-pointer hover:text-white transition-colors p-1 hover:bg-white/10 rounded"
                         title="Edit"
                       >
                         <Pencil size={14} />
                       </button>
                       <button
                         onClick={() => handleDeleteCharacter(c.id)}
-                        className="text-red-600 cursor-pointer hover:text-red-800"
+                        className="text-red-300 cursor-pointer hover:text-red-200 transition-colors p-1 hover:bg-red-500/20 rounded"
                         title="Delete"
                       >
                         <Trash2 size={14} />
@@ -277,12 +282,12 @@ export default function LoreSidebar({
             <button
               disabled={eventsPage === 1}
               onClick={() => setEventsPage((p) => Math.max(1, p - 1))}
-              className="px-2 py-1 rounded border hover:bg-[#aa83b8] cursor-pointer disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border-2 border-white/20 bg-white/10 hover:bg-white/20 text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
             >
               ← Prev
             </button>
 
-            <span>
+            <span className="text-white/80 font-medium">
               Page {eventsPage} / {eventsTotalPages}
             </span>
 
@@ -291,7 +296,7 @@ export default function LoreSidebar({
               onClick={() =>
                 setEventsPage((p) => Math.min(eventsTotalPages, p + 1))
               }
-              className="px-2 py-1 rounded border hover:bg-[#aa83b8] cursor-pointer disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border-2 border-white/20 bg-white/10 hover:bg-white/20 text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
             >
               Next →
             </button>
@@ -303,12 +308,12 @@ export default function LoreSidebar({
             <button
               disabled={charactersPage === 1}
               onClick={() => setCharactersPage((p) => Math.max(1, p - 1))}
-              className="px-2 py-1 rounded border hover:bg-[#aa83b8] cursor-pointer disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border-2 border-white/20 bg-white/10 hover:bg-white/20 text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
             >
               ← Prev
             </button>
 
-            <span>
+            <span className="text-white/80 font-medium">
               Page {charactersPage} / {charactersTotalPages}
             </span>
 
@@ -317,14 +322,14 @@ export default function LoreSidebar({
               onClick={() =>
                 setCharactersPage((p) => Math.min(charactersTotalPages, p + 1))
               }
-              className="px-2 py-1 rounded border hover:bg-[#aa83b8] cursor-pointer disabled:opacity-40"
+              className="px-3 py-1.5 rounded-lg border-2 border-white/20 bg-white/10 hover:bg-white/20 text-white cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed transition-all font-semibold"
             >
               Next →
             </button>
           </div>
         )}
 
-        <div className="border-t pt-4 text-xs text-gray-500">
+        <div className="border-t-2 border-white/10 pt-4 text-xs text-white/70 font-medium">
           <div>Connections: {connections.length}</div>
         </div>
 
@@ -355,7 +360,7 @@ export default function LoreSidebar({
               width: '100%',
               height: '40%',
               background:
-                'linear-gradient(to bottom, rgba(255, 255, 255, 1), transparent)',
+                'linear-gradient(to bottom, rgba(30, 17, 32, 1), transparent)',
               pointerEvents: 'none',
             }}
           />
