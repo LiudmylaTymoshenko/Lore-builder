@@ -12,6 +12,7 @@ export type Lore = {
   characters: Character[];
   connections: ConnectionType[];
   nodes: Node[];
+  places: Place[];
 };
 
 export type Event = {
@@ -23,6 +24,13 @@ export type Event = {
 };
 
 export type Character = {
+  id: string;
+  loreId: string;
+  name: string;
+  position: { x: number; y: number };
+};
+
+export type Place = {
   id: string;
   loreId: string;
   name: string;

@@ -15,7 +15,12 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import EventNode from './nodes/EventNode';
 import CharacterNode from './nodes/CharacterNode';
-import type { Character, ConnectionType, EventNodeType } from '../../types';
+import type {
+  Character,
+  ConnectionType,
+  EventNodeType,
+  Place,
+} from '../../types';
 import LoreSidebar from '../lore/LoreSidebar';
 import { FlowHelpControl } from './FlowHelpControl';
 import { X } from 'lucide-react';
@@ -39,6 +44,7 @@ interface FlowState {
   connections: ConnectionType[];
   nodes: Node[];
   edges: Edge[];
+  places: Place[];
 }
 
 function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
@@ -49,6 +55,7 @@ function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
       connections: [],
       nodes: [],
       edges: [],
+      places: [],
     };
   }
   return {
@@ -56,6 +63,7 @@ function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
     characters: lore.characters ?? [],
     connections: lore.connections ?? [],
     nodes: lore.nodes ?? [],
+    places: lore.places ?? [],
     edges: (lore.connections ?? []).map((c) => ({
       id: c.id,
       source: c.sourceId,
@@ -83,7 +91,7 @@ function LoreFlowInner({
     buildInitialState(activeLore),
   );
 
-  const { events, characters, connections, nodes, edges } = flowState;
+  const { events, characters, connections, nodes, edges, places } = flowState;
 
   useEffect(() => {
     if (!dirty || !activeLore) return;
@@ -232,6 +240,62 @@ function LoreFlowInner({
 
     dispatch(markDirty());
   }, [loreId, handleUpdateEvent, handleDeleteEvent, dispatch]);
+
+  const handleUpdatePlace = useCallback((id: string, name: string) => {
+    setFlowState((s) => ({
+      ...s,
+      places: s.places.map((c) => (c.id === id ? { ...c, name } : c)),
+      nodes: s.nodes.map((node) =>
+        node.id === id
+          ? { ...node, data: { ...node.data, label: name } }
+          : node,
+      ),
+    }));
+  }, []);
+
+  const handleDeletePlace = useCallback((id: string) => {
+    setFlowState((s) => ({
+      ...s,
+      places: s.places.filter((c) => c.id !== id),
+      nodes: s.nodes.filter((node) => node.id !== id),
+      connections: s.connections.filter(
+        (c) => c.sourceId !== id && c.targetId !== id,
+      ),
+      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
+    }));
+  }, []);
+
+  const handleAddPlace = useCallback(() => {
+    const newChar: Place = {
+      id: `char-${Date.now()}`,
+      loreId,
+      name: 'New Place',
+      position: {
+        x: Math.random() * 400 + 500,
+        y: Math.random() * 400,
+      },
+    };
+
+    setFlowState((s) => ({
+      ...s,
+      places: [...s.places, newChar],
+      nodes: [
+        ...s.nodes,
+        {
+          id: newChar.id,
+          type: 'place',
+          data: {
+            label: newChar.name,
+            onUpdate: handleUpdatePlace,
+            onDelete: handleDeletePlace,
+          },
+          position: newChar.position,
+        },
+      ],
+    }));
+
+    dispatch(markDirty());
+  }, [loreId, handleUpdatePlace, handleDeletePlace, dispatch]);
 
   const handleAddCharacter = useCallback(() => {
     const newChar: Character = {
@@ -422,6 +486,7 @@ function LoreFlowInner({
         events={events}
         characters={characters}
         connections={connections}
+        places={places}
         handleAddEvent={handleAddEvent}
         handleUpdateEvent={handleUpdateEvent}
         handleDeleteEvent={handleDeleteEvent}
@@ -429,6 +494,9 @@ function LoreFlowInner({
         handleUpdateCharacter={handleUpdateCharacter}
         handleDeleteCharacter={handleDeleteCharacter}
         handleLocateEvent={handleLocateEvent}
+        handleAddPlace={handleAddPlace}
+        handleUpdatePlace={handleUpdatePlace}
+        handleDeletePlace={handleDeletePlace}
         activeLore={activeLore}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
