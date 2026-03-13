@@ -32,10 +32,12 @@ import {
   updateLore,
 } from '../../features/lore/loreSlice';
 import { selectDirty } from '../../features/lore/loreSelectors';
+import PlaceNode from './nodes/PlaceNode';
 
 const nodeTypes = {
   event: EventNode,
   character: CharacterNode,
+  place: PlaceNode,
 };
 
 interface FlowState {
@@ -96,7 +98,7 @@ function LoreFlowInner({
   useEffect(() => {
     if (!dirty || !activeLore) return;
 
-    const payload = { events, characters, connections, nodes };
+    const payload = { events, characters, connections, nodes, places };
 
     const t = setTimeout(async () => {
       try {
@@ -110,7 +112,16 @@ function LoreFlowInner({
     }, 800);
 
     return () => clearTimeout(t);
-  }, [events, characters, connections, nodes, dirty, activeLore, dispatch]);
+  }, [
+    events,
+    characters,
+    connections,
+    nodes,
+    dirty,
+    activeLore,
+    places,
+    dispatch,
+  ]);
 
   const handleUpdateEvent = useCallback((id: string, title: string) => {
     setFlowState((s) => ({
@@ -343,6 +354,7 @@ function LoreFlowInner({
           nodes: updatedNodes,
           events: updatedEvents,
           characters: updatedCharacters,
+          places: updatedPlaces,
         } = s;
 
         updatedNodes = applyNodeChanges(changes, updatedNodes);
@@ -361,6 +373,9 @@ function LoreFlowInner({
             updatedCharacters = updatedCharacters.map((c) =>
               c.id === change.id ? { ...c, position: pos } : c,
             );
+            updatedPlaces = updatedPlaces.map((c) =>
+              c.id === change.id ? { ...c, position: pos } : c,
+            );
           }
         });
 
@@ -369,6 +384,7 @@ function LoreFlowInner({
           nodes: updatedNodes,
           events: updatedEvents,
           characters: updatedCharacters,
+          places: updatedPlaces,
         };
       });
 
@@ -457,6 +473,17 @@ function LoreFlowInner({
       };
     }
 
+    if (node.type === 'place') {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onUpdate: handleUpdatePlace,
+          onDelete: handleDeletePlace,
+        },
+      };
+    }
+
     return node;
   }
 
@@ -470,6 +497,7 @@ function LoreFlowInner({
       events: activeLore.events ?? [],
       characters: activeLore.characters ?? [],
       connections: activeLore.connections ?? [],
+      places: activeLore.places ?? [],
       edges: (activeLore.connections ?? []).map((c) => ({
         id: c.id,
         source: c.sourceId,
