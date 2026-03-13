@@ -25,14 +25,14 @@ function EventNode({ data, id, selected }: NodeProps<NodeData>) {
       <div className="absolute -top-2 -right-2 flex gap-1 z-10">
         <button
           onClick={() => setIsEditing(!isEditing)}
-          className="bg-[#50006c] hover:bg-[#68028d] text-white rounded-full p-1 shadow-md transition-colors"
+          className="bg-[#50006c] cursor-pointer hover:bg-[#68028d] text-white rounded-full p-1 shadow-md transition-colors"
           title="Edit"
         >
           <Pencil size={12} />
         </button>
         <button
           onClick={handleDelete}
-          className="bg-red-500 hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-colors"
+          className="bg-red-500 cursor-pointer hover:bg-red-600 text-white rounded-full p-1 shadow-md transition-colors"
           title="Delete"
         >
           <Trash2 size={12} />

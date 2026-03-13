@@ -413,6 +413,7 @@ function LoreFlowInner({
         type: 'simplebezier',
       })),
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLore?.id]);
 
   return (
@@ -433,7 +434,7 @@ function LoreFlowInner({
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div className="flex-1 w-full relative">
+      <div className="flex-1 w-full relative overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -453,8 +454,8 @@ function LoreFlowInner({
           <MiniMap />
         </ReactFlow>
         {showHelp && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center">
-            <div className="w-80 rounded-xl bg-white p-4 shadow-xl">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="w-100 rounded-xl bg-white p-4 shadow-xl">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold">Quick tips</h3>
                 <X
@@ -462,8 +463,35 @@ function LoreFlowInner({
                   onClick={() => setShowHelp(false)}
                 />
               </div>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>Hello</li>
+
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <b>Drag nodes</b> to rearrange your story visually.
+                </li>
+                <li>
+                  <b>Connect events</b> to show cause and effect relationships.
+                </li>
+                <li>
+                  <b>Characters can link</b> to multiple events at once.
+                </li>
+                <li>
+                  <b>Click the pencil</b> to rename events or characters.
+                </li>
+                <li>
+                  <b>Use “Locate”</b> to jump to an event on a large map.
+                </li>
+                <li>
+                  <b>Think in timelines</b>: early, middle, and finale events.
+                </li>
+                <li>
+                  <b>Sources</b> help track canon versus non-canon lore.
+                </li>
+                <li>
+                  <b>Too many links?</b> Split events into smaller ones.
+                </li>
+                <li>
+                  <b>Changes save automatically</b>; no manual save needed.
+                </li>
               </ul>
             </div>
           </div>

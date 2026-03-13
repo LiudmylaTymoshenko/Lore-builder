@@ -16,7 +16,7 @@ const initialState: LoreState = {
   items: [],
   loading: false,
   dirty: false,
-  current: undefined
+  current: undefined,
 };
 
 export const fetchLores = createAsyncThunk<Lore[]>(
@@ -70,6 +70,17 @@ export const deleteLore = createAsyncThunk<string, string>(
     await dispatch(loreApi.endpoints.deleteLore.initiate(id)).unwrap();
 
     return id;
+  },
+);
+
+export const importLore = createAsyncThunk<Lore, any>(
+  'lore/import',
+  async (data, { dispatch }) => {
+    const result = await dispatch(
+      loreApi.endpoints.importLore.initiate(data),
+    ).unwrap();
+
+    return result;
   },
 );
 

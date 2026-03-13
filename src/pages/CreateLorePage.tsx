@@ -5,7 +5,7 @@ import { createLore } from '../features/lore/loreSlice';
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react';
 
 const inputBase =
-  'w-full rounded-lg border-2 border-white/20 bg-white/10 backdrop-blur-md px-3 py-2 outline-none focus:ring-2 focus:ring-[#8b5a8f] focus:border-[#8b5a8f] text-white placeholder:text-white/50 transition-all text-sm';
+  'w-full rounded-lg border-2 border-[#3F4245]/10 bg-white px-3 py-2 outline-none focus:ring-2 focus:ring-[#F64134]/40 focus:border-[#F64134] text-[#3F4245] placeholder:text-[#3F4245]/40 transition-all text-sm';
 
 export default function CreateLorePage() {
   const dispatch = useAppDispatch();
@@ -17,15 +17,15 @@ export default function CreateLorePage() {
   const [description, setDescription] = useState('');
   const [image, setImage] = useState<string | null>(null);
 
+  const [sources, setSources] = useState([
+    { title: '', type: 'book', canon: 'official' },
+  ]);
+
   const [errors, setErrors] = useState<{
     name?: string;
     type?: string;
     sources?: Record<number, string>;
   }>({});
-
-  const [sources, setSources] = useState([
-    { title: '', type: 'book', canon: 'official' },
-  ]);
 
   const addSource = () =>
     setSources((s) => [...s, { title: '', type: 'book', canon: 'official' }]);
@@ -58,9 +58,7 @@ export default function CreateLorePage() {
 
     const sourceErrors: Record<number, string> = {};
     sources.forEach((s, i) => {
-      if (!s.title.trim()) {
-        sourceErrors[i] = 'Source title is required';
-      }
+      if (!s.title.trim()) sourceErrors[i] = 'Source title is required';
     });
 
     if (Object.keys(sourceErrors).length) {
@@ -87,201 +85,211 @@ export default function CreateLorePage() {
       ).unwrap();
 
       navigate(`/lore/${lore.id}`);
-    } catch (error) {
-      console.error('Failed to create lore', error);
+    } catch (err) {
+      console.error('Failed to create lore', err);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#2b192e] flex flex-col">
-      <div 
-        className="fixed inset-0 opacity-20 bg-cover bg-center"
-        style={{ backgroundImage: "url('/assets/Dashboard.png')" }}
-      />
-
-      <div className="relative z-10 flex flex-col flex-1">
-        <header className="bg-white/10 backdrop-blur-md border-b border-white/10 shadow-xl">
-          <div className="px-6 py-4 flex items-center justify-between box-border">
-            <h1 className="text-xl font-bold text-white">Lore Builder</h1>
-            
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 border-2 border-white/20 text-white font-medium transition-all text-sm"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Link>
+    <div className="min-h-screen bg-[#E7E8E3]">
+      <header className="bg-white border-b-2 border-[#3F4245]/10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-lg bg-[#F64134] flex items-center justify-center">
+              <span className="text-xl font-bold text-white">L</span>
+            </div>
+            <h1 className="text-2xl font-bold text-[#3F4245]">Lore Builder</h1>
           </div>
-        </header>
 
-        <main className="flex-1 flex items-center justify-center px-6 py-6">
-          <div className="w-full max-w-4xl bg-white/15 backdrop-blur-lg border-2 border-white/20 rounded-2xl p-6 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-4">
-              Create New Lore
-            </h2>
+          <Link
+            to="/dashboard"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border-2 border-[#3F4245]/20 text-[#3F4245] font-semibold text-sm hover:bg-[#E7E8E3] transition-all"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Back
+          </Link>
+        </div>
+      </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <div className="space-y-3">
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-bold text-[#3F4245] mb-2">
+            Create New Lore
+          </h2>
+          <p className="text-[#3F4245]/60 mb-10">
+            Define the foundation of your new world.
+          </p>
+
+          <div className="bg-white border-2 border-[#3F4245]/10 rounded-2xl p-8 shadow-sm space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-semibold text-white/90 mb-1">
+                  <label className="block text-xs font-semibold text-[#3F4245] mb-1">
                     Lore Name
                   </label>
                   <input
-                    className={`${inputBase} ${errors.name ? 'border-red-400 focus:ring-red-400' : ''}`}
-                    placeholder="Enter name..."
+                    className={`${inputBase} ${
+                      errors.name ? 'border-[#F64134]' : ''
+                    }`}
+                    placeholder="Enter lore name..."
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
                   {errors.name && (
-                    <p className="text-xs text-red-300 mt-1">{errors.name}</p>
+                    <p className="text-xs text-[#F64134] mt-1">{errors.name}</p>
                   )}
                 </div>
 
-                {/* Type */}
                 <div>
-                  <label className="block text-xs font-semibold text-white/90 mb-1">
+                  <label className="block text-xs font-semibold text-[#3F4245] mb-1">
                     Genre / Type
                   </label>
                   <input
-                    className={`${inputBase} ${errors.type ? 'border-red-400 focus:ring-red-400' : ''}`}
+                    className={`${inputBase} ${
+                      errors.type ? 'border-[#F64134]' : ''
+                    }`}
                     placeholder="Fantasy, Sci-Fi, etc."
                     value={type}
                     onChange={(e) => setType(e.target.value)}
                   />
                   {errors.type && (
-                    <p className="text-xs text-red-300 mt-1">{errors.type}</p>
+                    <p className="text-xs text-[#F64134] mt-1">{errors.type}</p>
                   )}
                 </div>
 
-                {/* Description */}
                 <div>
-                  <label className="block text-xs font-semibold text-white/90 mb-1">
+                  <label className="block text-xs font-semibold text-[#3F4245] mb-1">
                     Description
                   </label>
                   <textarea
                     className={inputBase}
-                    rows={3}
+                    rows={4}
                     placeholder="Short description..."
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
                 </div>
-
-                {/* Cover Image */}
-                <div>
-                  <label className="block text-xs font-semibold text-white/90 mb-1">
-                    Cover Image
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) =>
-                      e.target.files && handleImage(e.target.files[0])
-                    }
-                    className="block w-full text-xs text-white/80 file:mr-3 file:py-2 file:px-3 file:rounded-lg file:border-0 file:bg-[#6b3f70] file:text-white file:font-semibold hover:file:bg-[#8b5a8f] file:cursor-pointer file:transition-all file:text-sm"
-                  />
-                  {image && (
-                    <div className="mt-2 rounded-lg overflow-hidden border-2 border-white/20">
-                      <img
-                        src={image}
-                        alt="Preview"
-                        className="w-full h-32 object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-bold text-white">Sources</h3>
-                  <button
-                    type="button"
-                    onClick={addSource}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#6b3f70] hover:bg-[#8b5a8f] text-white font-semibold transition-all text-xs"
-                  >
-                    <Plus className="w-3 h-3" />
-                    Add
-                  </button>
-                </div>
+                <label className="block text-xs font-semibold text-[#3F4245]">
+                  Cover Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    e.target.files && handleImage(e.target.files[0])
+                  }
+                  className="block w-full text-sm text-[#3F4245]
+                    file:mr-3 file:py-2 file:px-3
+                    file:rounded-lg file:border-0
+                    file:bg-[#718E92] file:text-white
+                    file:font-semibold hover:file:bg-[#5a7074]
+                    file:cursor-pointer transition-all"
+                />
 
-                <div className="space-y-2 max-h-80 overflow-y-auto pr-2">
-                  {sources.map((source, i) => {
-                    const sourceError = errors.sources?.[i];
-
-                    return (
-                      <div
-                        key={i}
-                        className="bg-white/10 backdrop-blur-md border border-white/10 rounded-lg p-3 space-y-2"
-                      >
-                        <input
-                          className={`${inputBase} ${
-                            sourceError ? 'border-red-400' : ''
-                          }`}
-                          placeholder="Title..."
-                          value={source.title}
-                          onChange={(e) =>
-                            updateSource(i, 'title', e.target.value)
-                          }
-                        />
-                        {sourceError && (
-                          <p className="text-xs text-red-300">{sourceError}</p>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-2">
-                          <select
-                            className={inputBase}
-                            value={source.type}
-                            onChange={(e) =>
-                              updateSource(i, 'type', e.target.value)
-                            }
-                          >
-                            <option value="book">Book</option>
-                            <option value="film">Film</option>
-                            <option value="game">Game</option>
-                            <option value="codex">Codex</option>
-                          </select>
-
-                          <select
-                            className={inputBase}
-                            value={source.canon}
-                            onChange={(e) =>
-                              updateSource(i, 'canon', e.target.value)
-                            }
-                          >
-                            <option value="official">Official</option>
-                            <option value="semi-canon">Semi-canon</option>
-                            <option value="fanon">Fanon</option>
-                          </select>
-                        </div>
-
-                        {sources.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeSource(i)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-400/50 text-red-300 font-semibold transition-all text-xs"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                            Remove
-                          </button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
+                {image && (
+                  <div className="h-48 rounded-xl overflow-hidden border border-[#3F4245]/10">
+                    <img
+                      src={image}
+                      alt="Preview"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Submit Button */}
+            <div className="border-t border-[#3F4245]/10 pt-6 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-bold text-[#3F4245]">Sources</h3>
+                <button
+                  type="button"
+                  onClick={addSource}
+                  className="inline-flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg bg-[#718E92] hover:bg-[#5a7074] text-white font-semibold text-sm transition-all"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Source
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                {sources.map((source, i) => {
+                  const sourceError = errors.sources?.[i];
+
+                  return (
+                    <div
+                      key={i}
+                      className="bg-[#E7E8E3]/40 border border-[#3F4245]/10 rounded-xl p-4 space-y-3"
+                    >
+                      <input
+                        className={`${inputBase} ${
+                          sourceError ? 'border-[#F64134]' : ''
+                        }`}
+                        placeholder="Source title..."
+                        value={source.title}
+                        onChange={(e) =>
+                          updateSource(i, 'title', e.target.value)
+                        }
+                      />
+
+                      {sourceError && (
+                        <p className="text-xs text-[#F64134]">{sourceError}</p>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <select
+                          className={inputBase}
+                          value={source.type}
+                          onChange={(e) =>
+                            updateSource(i, 'type', e.target.value)
+                          }
+                        >
+                          <option value="book">Book</option>
+                          <option value="film">Film</option>
+                          <option value="game">Game</option>
+                          <option value="codex">Codex</option>
+                        </select>
+
+                        <select
+                          className={inputBase}
+                          value={source.canon}
+                          onChange={(e) =>
+                            updateSource(i, 'canon', e.target.value)
+                          }
+                        >
+                          <option value="official">Official</option>
+                          <option value="semi-canon">Semi-canon</option>
+                          <option value="fanon">Fanon</option>
+                        </select>
+                      </div>
+
+                      {sources.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => removeSource(i)}
+                          className="inline-flex cursor-pointer items-center gap-2 px-3 py-1.5 rounded-lg bg-[#F64134]/10 text-[#F64134] hover:bg-[#F64134]/20 border border-[#F64134]/20 font-semibold text-xs transition-all"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             <button
               onClick={handleSubmit}
-              className="w-full mt-4 py-3 rounded-xl bg-[#6b3f70] hover:bg-[#8b5a8f] text-white font-bold transition-all shadow-lg hover:shadow-xl"
+              className="w-full cursor-pointer py-4 rounded-xl bg-[#F64134] hover:bg-[#d83a2f] text-white font-bold transition-all shadow-lg hover:shadow-xl"
             >
               Create Lore
             </button>
           </div>
-        </main>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
