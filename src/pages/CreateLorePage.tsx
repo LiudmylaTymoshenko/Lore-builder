@@ -15,6 +15,7 @@ export default function CreateLorePage() {
   const [name, setName] = useState('');
   const [type, setType] = useState('');
   const [description, setDescription] = useState('');
+  const [tag, setTag] = useState('');
   const [image, setImage] = useState<string | null>(null);
 
   const [sources, setSources] = useState([
@@ -25,6 +26,7 @@ export default function CreateLorePage() {
     name?: string;
     type?: string;
     sources?: Record<number, string>;
+    tag?: string;
   }>({});
 
   const addSource = () =>
@@ -55,6 +57,7 @@ export default function CreateLorePage() {
 
     if (!name.trim()) nextErrors.name = 'Lore name is required';
     if (!type.trim()) nextErrors.type = 'Type is required';
+    if (!tag.trim()) nextErrors.tag = 'Tag is required';
 
     const sourceErrors: Record<number, string> = {};
     sources.forEach((s, i) => {
@@ -78,6 +81,7 @@ export default function CreateLorePage() {
         createLore({
           name,
           type,
+          tag,
           description,
           imageUrl: image,
           sources: sources.filter((s) => s.title.trim() !== ''),
@@ -137,6 +141,23 @@ export default function CreateLorePage() {
                   />
                   {errors.name && (
                     <p className="text-xs text-[#F64134] mt-1">{errors.name}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-[#3F4245] mb-1">
+                    Tag (used for grouping lores)
+                  </label>
+                  <input
+                    className={`${inputBase} ${
+                      errors.tag ? 'border-[#F64134]' : ''
+                    }`}
+                    placeholder="wh40k, dune, etc."
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                  />
+                  {errors.tag && (
+                    <p className="text-xs text-[#F64134] mt-1">{errors.tag}</p>
                   )}
                 </div>
 

@@ -7,6 +7,7 @@ export type Lore = {
   type: string;
   imageUrl?: string | null;
   sources: CreateSourcePayload[];
+  tag: string;
 
   events: EventNodeType[];
   characters: Character[];

@@ -159,33 +159,47 @@ export default function DashboardPage() {
                     </div>
                   )}
 
-                  <div className="p-5 space-y-4">
-                    <div className="flex justify-end">
-                      <button
-                        onClick={() => handleDelete(lore.id)}
-                        className="p-2 cursor-pointer rounded-lg bg-[#E7E8E3] hover:bg-[#F64134]/10 border border-[#3F4245]/10 hover:border-[#F64134]/30 transition-all group/delete"
-                      >
-                        <Trash2 className="w-4 h-4 text-[#3F4245]/60 group-hover/delete:text-[#F64134] transition-colors" />
-                      </button>
-                    </div>
+                  <div
+                    className={`p-5 space-y-4 flex flex-col justify-between ${lore.imageUrl ? '' : 'h-full'}`}
+                  >
+                    <div className="">
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => handleDelete(lore.id)}
+                          className="p-2 cursor-pointer rounded-lg bg-[#E7E8E3] hover:bg-[#F64134]/10 border border-[#3F4245]/10 hover:border-[#F64134]/30 transition-all group/delete"
+                        >
+                          <Trash2 className="w-4 h-4 text-[#3F4245]/60 group-hover/delete:text-[#F64134] transition-colors" />
+                        </button>
+                      </div>
 
-                    <div className="space-y-3">
-                      <h3 className="text-xl font-bold text-[#3F4245]">
-                        {lore.name}
-                      </h3>
-                      <p className="text-sm text-[#718E92] font-semibold">
-                        {lore.type}
-                      </p>
-
-                      {lore.sources && lore.sources.length > 0 && (
-                        <div className="pt-2 space-y-1 border-t border-[#3F4245]/10">
-                          {lore.sources.map((source, idx) => (
-                            <p key={idx} className="text-xs text-[#3F4245]/60">
-                              • {source.title}
+                      <div className="space-y-3">
+                        <h3 className="text-xl font-bold text-[#3F4245]">
+                          {lore.name}
+                        </h3>
+                        <div className="flex justify-between">
+                          <p className="text-sm text-[#718E92] font-semibold">
+                            {lore.type}
+                          </p>
+                          {lore.tag && (
+                            <p className="text-sm bg-[#718E92] text-white font-semibold rounded-2xl px-2.5 py-1">
+                              {lore.tag}
                             </p>
-                          ))}
+                          )}
                         </div>
-                      )}
+
+                        {lore.sources && lore.sources.length > 0 && (
+                          <div className="pt-2 space-y-1 border-t border-[#3F4245]/10">
+                            {lore.sources.map((source, idx) => (
+                              <p
+                                key={idx}
+                                className="text-xs text-[#3F4245]/60 italic"
+                              >
+                                {source.title}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <Link
