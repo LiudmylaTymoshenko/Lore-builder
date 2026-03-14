@@ -3,7 +3,7 @@ import { Handle, Position, type NodeProps } from 'reactflow';
 import { Pencil, Trash2 } from 'lucide-react';
 import type { NodeData } from '../../../types';
 
-function EventNode({ data, id, selected }: NodeProps<NodeData>) {
+function PlaceNode({ data, id, selected }: NodeProps<NodeData>) {
   const [isEditing, setIsEditing] = useState(false);
   const [title, setTitle] = useState(data.label);
 
@@ -40,7 +40,7 @@ function EventNode({ data, id, selected }: NodeProps<NodeData>) {
       </div>
 
       <div
-        className={`bg-white border-3 ${selected ? 'border-yellow-500' : 'border-[#ab36bd]'}  rounded-lg shadow-lg p-3 max-w-40`}
+        className={`bg-white border-3 ${selected ? 'border-yellow-500' : 'border-[#3bbd36]'}  rounded-lg shadow-lg p-3 max-w-40`}
       >
         <Handle
           style={{
@@ -96,4 +96,4 @@ function EventNode({ data, id, selected }: NodeProps<NodeData>) {
   );
 }
 
-export default EventNode;
+export default PlaceNode;

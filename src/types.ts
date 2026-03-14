@@ -7,11 +7,13 @@ export type Lore = {
   type: string;
   imageUrl?: string | null;
   sources: CreateSourcePayload[];
+  tag: string;
 
   events: EventNodeType[];
   characters: Character[];
   connections: ConnectionType[];
   nodes: Node[];
+  places: Place[];
 };
 
 export type Event = {
@@ -23,6 +25,13 @@ export type Event = {
 };
 
 export type Character = {
+  id: string;
+  loreId: string;
+  name: string;
+  position: { x: number; y: number };
+};
+
+export type Place = {
   id: string;
   loreId: string;
   name: string;

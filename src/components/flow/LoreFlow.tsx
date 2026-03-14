@@ -15,7 +15,12 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import EventNode from './nodes/EventNode';
 import CharacterNode from './nodes/CharacterNode';
-import type { Character, ConnectionType, EventNodeType } from '../../types';
+import type {
+  Character,
+  ConnectionType,
+  EventNodeType,
+  Place,
+} from '../../types';
 import LoreSidebar from '../lore/LoreSidebar';
 import { FlowHelpControl } from './FlowHelpControl';
 import { X } from 'lucide-react';
@@ -27,10 +32,12 @@ import {
   updateLore,
 } from '../../features/lore/loreSlice';
 import { selectDirty } from '../../features/lore/loreSelectors';
+import PlaceNode from './nodes/PlaceNode';
 
 const nodeTypes = {
   event: EventNode,
   character: CharacterNode,
+  place: PlaceNode,
 };
 
 interface FlowState {
@@ -39,6 +46,7 @@ interface FlowState {
   connections: ConnectionType[];
   nodes: Node[];
   edges: Edge[];
+  places: Place[];
 }
 
 function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
@@ -49,6 +57,7 @@ function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
       connections: [],
       nodes: [],
       edges: [],
+      places: [],
     };
   }
   return {
@@ -56,6 +65,7 @@ function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
     characters: lore.characters ?? [],
     connections: lore.connections ?? [],
     nodes: lore.nodes ?? [],
+    places: lore.places ?? [],
     edges: (lore.connections ?? []).map((c) => ({
       id: c.id,
       source: c.sourceId,
@@ -83,12 +93,12 @@ function LoreFlowInner({
     buildInitialState(activeLore),
   );
 
-  const { events, characters, connections, nodes, edges } = flowState;
+  const { events, characters, connections, nodes, edges, places } = flowState;
 
   useEffect(() => {
     if (!dirty || !activeLore) return;
 
-    const payload = { events, characters, connections, nodes };
+    const payload = { events, characters, connections, nodes, places };
 
     const t = setTimeout(async () => {
       try {
@@ -102,7 +112,16 @@ function LoreFlowInner({
     }, 800);
 
     return () => clearTimeout(t);
-  }, [events, characters, connections, nodes, dirty, activeLore, dispatch]);
+  }, [
+    events,
+    characters,
+    connections,
+    nodes,
+    dirty,
+    activeLore,
+    places,
+    dispatch,
+  ]);
 
   const handleUpdateEvent = useCallback((id: string, title: string) => {
     setFlowState((s) => ({
@@ -233,6 +252,62 @@ function LoreFlowInner({
     dispatch(markDirty());
   }, [loreId, handleUpdateEvent, handleDeleteEvent, dispatch]);
 
+  const handleUpdatePlace = useCallback((id: string, name: string) => {
+    setFlowState((s) => ({
+      ...s,
+      places: s.places.map((c) => (c.id === id ? { ...c, name } : c)),
+      nodes: s.nodes.map((node) =>
+        node.id === id
+          ? { ...node, data: { ...node.data, label: name } }
+          : node,
+      ),
+    }));
+  }, []);
+
+  const handleDeletePlace = useCallback((id: string) => {
+    setFlowState((s) => ({
+      ...s,
+      places: s.places.filter((c) => c.id !== id),
+      nodes: s.nodes.filter((node) => node.id !== id),
+      connections: s.connections.filter(
+        (c) => c.sourceId !== id && c.targetId !== id,
+      ),
+      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
+    }));
+  }, []);
+
+  const handleAddPlace = useCallback(() => {
+    const newChar: Place = {
+      id: `char-${Date.now()}`,
+      loreId,
+      name: 'New Place',
+      position: {
+        x: Math.random() * 400 + 500,
+        y: Math.random() * 400,
+      },
+    };
+
+    setFlowState((s) => ({
+      ...s,
+      places: [...s.places, newChar],
+      nodes: [
+        ...s.nodes,
+        {
+          id: newChar.id,
+          type: 'place',
+          data: {
+            label: newChar.name,
+            onUpdate: handleUpdatePlace,
+            onDelete: handleDeletePlace,
+          },
+          position: newChar.position,
+        },
+      ],
+    }));
+
+    dispatch(markDirty());
+  }, [loreId, handleUpdatePlace, handleDeletePlace, dispatch]);
+
   const handleAddCharacter = useCallback(() => {
     const newChar: Character = {
       id: `char-${Date.now()}`,
@@ -279,6 +354,7 @@ function LoreFlowInner({
           nodes: updatedNodes,
           events: updatedEvents,
           characters: updatedCharacters,
+          places: updatedPlaces,
         } = s;
 
         updatedNodes = applyNodeChanges(changes, updatedNodes);
@@ -297,6 +373,9 @@ function LoreFlowInner({
             updatedCharacters = updatedCharacters.map((c) =>
               c.id === change.id ? { ...c, position: pos } : c,
             );
+            updatedPlaces = updatedPlaces.map((c) =>
+              c.id === change.id ? { ...c, position: pos } : c,
+            );
           }
         });
 
@@ -305,6 +384,7 @@ function LoreFlowInner({
           nodes: updatedNodes,
           events: updatedEvents,
           characters: updatedCharacters,
+          places: updatedPlaces,
         };
       });
 
@@ -393,6 +473,17 @@ function LoreFlowInner({
       };
     }
 
+    if (node.type === 'place') {
+      return {
+        ...node,
+        data: {
+          ...node.data,
+          onUpdate: handleUpdatePlace,
+          onDelete: handleDeletePlace,
+        },
+      };
+    }
+
     return node;
   }
 
@@ -406,6 +497,7 @@ function LoreFlowInner({
       events: activeLore.events ?? [],
       characters: activeLore.characters ?? [],
       connections: activeLore.connections ?? [],
+      places: activeLore.places ?? [],
       edges: (activeLore.connections ?? []).map((c) => ({
         id: c.id,
         source: c.sourceId,
@@ -413,6 +505,7 @@ function LoreFlowInner({
         type: 'simplebezier',
       })),
     }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLore?.id]);
 
   return (
@@ -421,6 +514,7 @@ function LoreFlowInner({
         events={events}
         characters={characters}
         connections={connections}
+        places={places}
         handleAddEvent={handleAddEvent}
         handleUpdateEvent={handleUpdateEvent}
         handleDeleteEvent={handleDeleteEvent}
@@ -428,12 +522,15 @@ function LoreFlowInner({
         handleUpdateCharacter={handleUpdateCharacter}
         handleDeleteCharacter={handleDeleteCharacter}
         handleLocateEvent={handleLocateEvent}
+        handleAddPlace={handleAddPlace}
+        handleUpdatePlace={handleUpdatePlace}
+        handleDeletePlace={handleDeletePlace}
         activeLore={activeLore}
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div className="flex-1 w-full relative">
+      <div className="flex-1 w-full relative overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -453,8 +550,8 @@ function LoreFlowInner({
           <MiniMap />
         </ReactFlow>
         {showHelp && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center">
-            <div className="w-80 rounded-xl bg-white p-4 shadow-xl">
+          <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/30">
+            <div className="w-100 rounded-xl bg-white p-4 shadow-xl">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="font-semibold">Quick tips</h3>
                 <X
@@ -462,8 +559,35 @@ function LoreFlowInner({
                   onClick={() => setShowHelp(false)}
                 />
               </div>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>Hello</li>
+
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>
+                  <b>Drag nodes</b> to rearrange your story visually.
+                </li>
+                <li>
+                  <b>Connect events</b> to show cause and effect relationships.
+                </li>
+                <li>
+                  <b>Characters can link</b> to multiple events at once.
+                </li>
+                <li>
+                  <b>Click the pencil</b> to rename events or characters.
+                </li>
+                <li>
+                  <b>Use “Locate”</b> to jump to an event on a large map.
+                </li>
+                <li>
+                  <b>Think in timelines</b>: early, middle, and finale events.
+                </li>
+                <li>
+                  <b>Sources</b> help track canon versus non-canon lore.
+                </li>
+                <li>
+                  <b>Too many links?</b> Split events into smaller ones.
+                </li>
+                <li>
+                  <b>Changes save automatically</b>; no manual save needed.
+                </li>
               </ul>
             </div>
           </div>

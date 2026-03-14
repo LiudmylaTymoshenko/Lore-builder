@@ -20,6 +20,14 @@ export const loreApi = api.injectEndpoints({
       }),
     }),
 
+    importLore: builder.mutation<Lore, Lore>({
+      query: (body) => ({
+        url: '/lores/import',
+        method: 'POST',
+        body,
+      }),
+    }),
+
     updateLore: builder.mutation<
       Lore,
       { id: string; data: UpdateLoreContentPayload }
