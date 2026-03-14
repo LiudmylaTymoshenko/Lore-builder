@@ -221,15 +221,17 @@ export default function LoreSidebar({
             ? desktopVisible
               ? sidebarWidth + 6
               : 0
-            : sidebarWidth + 6,
+            : isSidebarOpen
+              ? sidebarWidth + 6
+              : 0,
           overflow: 'hidden',
         }}
       >
         <div
-          className="absolute top-0 left-0 bottom-0 bg-[#E7E8E3] border-r-2 border-[#3F4245]/10 overflow-hidden flex flex-col"
-          style={{ width: sidebarWidth }}
+          className="absolute top-0 left-0 bg-[#E7E8E3] border-r-2 border-[#3F4245]/10 flex flex-col"
+          style={{ width: sidebarWidth, height: '100vh', overflow: 'hidden' }}
         >
-          <div className="space-y-4 p-4 flex-1">
+          <div className="flex flex-col gap-4 p-4 flex-1 min-h-0 overflow-hidden">
             <h2 className="text-xl font-bold text-[#3F4245]">Lore Builder</h2>
 
             <div className="flex gap-2">
@@ -273,7 +275,7 @@ export default function LoreSidebar({
                 >
                   + Add Event
                 </button>
-                <ul className="space-y-2">
+                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
                   {pagedEvents.map((e) => (
                     <li
                       key={e.id}
@@ -361,7 +363,7 @@ export default function LoreSidebar({
                 >
                   + Add Character
                 </button>
-                <ul className="space-y-2">
+                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
                   {pagedCharacters.map((c) => (
                     <li
                       key={c.id}
@@ -437,7 +439,7 @@ export default function LoreSidebar({
                 >
                   + Add Place
                 </button>
-                <ul className="space-y-2">
+                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
                   {pagedPlaces.map((p) => (
                     <li
                       key={p.id}
@@ -534,13 +536,21 @@ export default function LoreSidebar({
             </div>
           )}
         </div>
+
         <div
           onMouseDown={onMouseDown}
           onTouchStart={onTouchStart}
           style={{ left: sidebarWidth }}
-          className="absolute top-0 bottom-0 w-3 cursor-col-resize z-10
-            bg-[#3F4245]/15 hover:bg-[#718E92]/60 transition-colors duration-150 select-none"
-        />
+          className="absolute top-0 bottom-0 w-4 cursor-col-resize z-10 select-none
+            bg-[#3F4245]/10 hover:bg-[#718E92]/30 active:bg-[#718E92]/50
+            transition-colors duration-150 flex items-center justify-center group"
+        >
+          <div className="flex flex-col gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="w-1 h-1 rounded-full bg-[#45413f]" />
+            ))}
+          </div>
+        </div>
       </div>
     </>
   );
