@@ -103,10 +103,18 @@ export default function LoreSidebar({
     [sidebarWidth],
   );
 
+  const onTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      isResizing.current = true;
+      startX.current = e.touches[0].clientX;
+      startWidth.current = sidebarWidth;
+    },
+    [sidebarWidth],
+  );
+
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isResizing.current) return;
-      const delta = e.clientX - startX.current;
+    const applyResize = (clientX: number) => {
+      const delta = clientX - startX.current;
       const newWidth = startWidth.current + delta;
 
       if (newWidth < COLLAPSE_THRESHOLD) {
@@ -121,6 +129,11 @@ export default function LoreSidebar({
       setSidebarWidth(Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, newWidth)));
     };
 
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isResizing.current) return;
+      applyResize(e.clientX);
+    };
+
     const onMouseUp = () => {
       if (!isResizing.current) return;
       isResizing.current = false;
@@ -128,21 +141,45 @@ export default function LoreSidebar({
       document.body.style.userSelect = '';
     };
 
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isResizing.current) return;
+      applyResize(e.touches[0].clientX);
+    };
+
+    const onTouchEnd = () => {
+      isResizing.current = false;
+    };
+
     window.addEventListener('mousemove', onMouseMove);
     window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    window.addEventListener('touchend', onTouchEnd);
+
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
     };
   }, []);
 
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== 'undefined' && window.innerWidth >= 768,
+  );
   const desktopVisible = !desktopCollapsed;
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   return (
     <>
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed w-14 cursor-pointer top-30 left-2 z-40 lg:hidden bg-white border-2 border-[#3F4245]/20 p-2 rounded-lg shadow-sm text-[#3F4245] font-bold"
+        className="fixed w-14 cursor-pointer top-30 left-2 z-40 md:hidden bg-white border-2 border-[#3F4245]/20 p-2 rounded-lg shadow-sm text-[#3F4245] font-bold"
       >
         ☰
       </button>
@@ -153,7 +190,7 @@ export default function LoreSidebar({
             setDesktopCollapsed(false);
             setSidebarWidth(433);
           }}
-          className="hidden lg:flex fixed top-1/2 -translate-y-1/2 left-0 z-50 flex-col items-center justify-center
+          className="hidden md:flex fixed top-1/2 -translate-y-1/2 left-0 z-50 flex-col items-center justify-center
             w-5 h-16 bg-[#E7E8E3] border border-[#3F4245]/20 border-l-0
             rounded-r-md cursor-pointer hover:bg-[#d8d9d4] transition-colors"
           title="Open sidebar"
@@ -169,17 +206,22 @@ export default function LoreSidebar({
       {isSidebarOpen && (
         <div
           onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+          className="fixed inset-0 bg-black/40 z-30 md:hidden"
         />
       )}
+
       <div
         className={`relative h-screen flex-shrink-0
-          lg:relative fixed top-0 left-0 z-40
+          md:relative fixed top-0 left-0 z-40
           transition-transform duration-300 ease-in-out
           ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          lg:translate-x-0`}
+          md:translate-x-0`}
         style={{
-          width: desktopVisible ? sidebarWidth + 6 : 0,
+          width: isDesktop
+            ? desktopVisible
+              ? sidebarWidth + 6
+              : 0
+            : sidebarWidth + 6,
           overflow: 'hidden',
         }}
       >
@@ -492,11 +534,11 @@ export default function LoreSidebar({
             </div>
           )}
         </div>
-
         <div
           onMouseDown={onMouseDown}
+          onTouchStart={onTouchStart}
           style={{ left: sidebarWidth }}
-          className="absolute top-0 bottom-0 w-1.5 cursor-col-resize z-10
+          className="absolute top-0 bottom-0 w-3 cursor-col-resize z-10
             bg-[#3F4245]/15 hover:bg-[#718E92]/60 transition-colors duration-150 select-none"
         />
       </div>
