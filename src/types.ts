@@ -57,6 +57,10 @@ export type NodeData = {
   onDelete: (id: string) => void;
   onUpdate: (id: string, name: string) => void;
   onDuplicate?: (id: string) => void;
+  details?: string[];
+  imageUrl?: string;
+  onUpdateDetails?: (id: string, details: string[]) => void;
+  onUpdateImage?: (id: string, url: string) => void;
 };
 
 export type UpdateLoreContentPayload = {

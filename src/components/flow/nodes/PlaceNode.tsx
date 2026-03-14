@@ -40,7 +40,7 @@ function PlaceNode({ data, id, selected }: NodeProps<NodeData>) {
       </div>
 
       <div
-        className={`bg-white border-3 ${selected ? 'border-yellow-500' : 'border-[#3bbd36]'}  rounded-lg shadow-lg p-3 max-w-40`}
+        className={`text-white border-3 ${selected ? 'bg-yellow-500' : 'bg-[#3e583d]'}  rounded-lg shadow-lg p-3 max-w-40`}
       >
         <Handle
           style={{
@@ -74,7 +74,7 @@ function PlaceNode({ data, id, selected }: NodeProps<NodeData>) {
           />
         ) : (
           <div
-            className="font-semibold text-[#2b192e] text-sm wrap-break-word whitespace-pre-wrap cursor-text"
+            className="font-semibold text-white text-sm wrap-break-word whitespace-pre-wrap cursor-text"
             onDoubleClick={() => setIsEditing(true)}
           >
             {data.label}

@@ -171,6 +171,38 @@ function LoreFlowInner({
     }));
   }, []);
 
+  const handleUpdateCharacterDetails = useCallback(
+    (id: string, details: string[]) => {
+      setFlowState((s) => ({
+        ...s,
+        characters: s.characters.map((c) =>
+          c.id === id ? { ...c, details } : c,
+        ),
+        nodes: s.nodes.map((node) =>
+          node.id === id ? { ...node, data: { ...node.data, details } } : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
+
+  const handleUpdateCharacterImage = useCallback(
+    (id: string, imageUrl: string) => {
+      setFlowState((s) => ({
+        ...s,
+        characters: s.characters.map((c) =>
+          c.id === id ? { ...c, imageUrl } : c,
+        ),
+        nodes: s.nodes.map((node) =>
+          node.id === id ? { ...node, data: { ...node.data, imageUrl } } : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
+
   const handleDuplicateNode = useCallback(
     (id: string) => {
       setFlowState((s) => {
@@ -329,9 +361,13 @@ function LoreFlowInner({
           type: 'character',
           data: {
             label: newChar.name,
+            details: [],
+            imageUrl: undefined,
             onUpdate: handleUpdateCharacter,
             onDelete: handleDeleteCharacter,
             onDuplicate: handleDuplicateNode,
+            onUpdateDetails: handleUpdateCharacterDetails,
+            onUpdateImage: handleUpdateCharacterImage,
           },
           position: newChar.position,
         },
@@ -344,6 +380,8 @@ function LoreFlowInner({
     handleUpdateCharacter,
     handleDeleteCharacter,
     handleDuplicateNode,
+    handleUpdateCharacterDetails,
+    handleUpdateCharacterImage,
     dispatch,
   ]);
 
@@ -469,6 +507,8 @@ function LoreFlowInner({
           onUpdate: handleUpdateCharacter,
           onDelete: handleDeleteCharacter,
           onDuplicate: handleDuplicateNode,
+          onUpdateDetails: handleUpdateCharacterDetails,
+          onUpdateImage: handleUpdateCharacterImage,
         },
       };
     }
@@ -509,7 +549,7 @@ function LoreFlowInner({
   }, [activeLore?.id]);
 
   return (
-    <div style={{ width: '100vw', display: 'flex' }}>
+    <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
       <LoreSidebar
         events={events}
         characters={characters}
@@ -530,7 +570,7 @@ function LoreFlowInner({
         setIsSidebarOpen={setIsSidebarOpen}
       />
 
-      <div className="flex-1 w-full relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -574,7 +614,7 @@ function LoreFlowInner({
                   <b>Click the pencil</b> to rename events or characters.
                 </li>
                 <li>
-                  <b>Use “Locate”</b> to jump to an event on a large map.
+                  <b>Use "Locate"</b> to jump to an event on a large map.
                 </li>
                 <li>
                   <b>Think in timelines</b>: early, middle, and finale events.
