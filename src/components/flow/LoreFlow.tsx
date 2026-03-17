@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useState, useCallback, useEffect, useRef } from 'react';
 import ReactFlow, {
   Background,
   MiniMap,
@@ -75,6 +76,33 @@ function buildInitialState(lore: ReturnType<typeof useActiveLore>): FlowState {
   };
 }
 
+function cleanNodes(nodes: Node[]) {
+  return nodes.map(
+    ({
+      data,
+      width,
+      height,
+      dragging,
+      selected,
+      resizing,
+      positionAbsolute,
+      ...node
+    }) => {
+      const {
+        onUpdate,
+        onDelete,
+        onDuplicate,
+        onUpdateDetails,
+        onUpdateImage,
+        onUpdateQuotes,
+        allDetails,
+        ...restData
+      } = data;
+      return { ...node, data: restData };
+    },
+  );
+}
+
 function LoreFlowInner({
   loreId,
   activeLore,
@@ -89,6 +117,8 @@ function LoreFlowInner({
   const dispatch = useAppDispatch();
   const dirty = useAppSelector(selectDirty);
 
+  const nodesRef = useRef<Node[]>([]);
+
   const [flowState, setFlowState] = useState<FlowState>(() =>
     buildInitialState(activeLore),
   );
@@ -96,11 +126,25 @@ function LoreFlowInner({
   const { events, characters, connections, nodes, edges, places } = flowState;
 
   useEffect(() => {
+    nodesRef.current = nodes;
+  }, [nodes]);
+
+  const allDetails = Array.from(
+    new Set(characters.flatMap((c) => (c as Character).details ?? [])),
+  ) as string[];
+
+  useEffect(() => {
     if (!dirty || !activeLore) return;
 
-    const payload = { events, characters, connections, nodes, places };
-
     const t = setTimeout(async () => {
+      const payload = {
+        events,
+        characters,
+        connections,
+        places,
+        nodes: cleanNodes(nodesRef.current),
+      };
+
       try {
         await dispatch(
           updateLore({ id: activeLore.id, data: payload }),
@@ -112,64 +156,75 @@ function LoreFlowInner({
     }, 800);
 
     return () => clearTimeout(t);
-  }, [
-    events,
-    characters,
-    connections,
-    nodes,
-    dirty,
-    activeLore,
-    places,
-    dispatch,
-  ]);
+  }, [events, characters, connections, places, dirty, activeLore, dispatch]);
 
-  const handleUpdateEvent = useCallback((id: string, title: string) => {
-    setFlowState((s) => ({
-      ...s,
-      events: s.events.map((e) => (e.id === id ? { ...e, title } : e)),
-      nodes: s.nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, label: title } }
-          : node,
-      ),
-    }));
-  }, []);
+  const handleUpdateEvent = useCallback(
+    (id: string, title: string) => {
+      setFlowState((s) => ({
+        ...s,
+        events: s.events.map((e) => (e.id === id ? { ...e, title } : e)),
+        nodes: s.nodes.map((node) =>
+          node.id === id
+            ? { ...node, data: { ...node.data, label: title } }
+            : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
-  const handleDeleteEvent = useCallback((id: string) => {
-    setFlowState((s) => ({
-      ...s,
-      events: s.events.filter((e) => e.id !== id),
-      nodes: s.nodes.filter((node) => node.id !== id),
-      connections: s.connections.filter(
-        (c) => c.sourceId !== id && c.targetId !== id,
-      ),
-      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
-    }));
-  }, []);
+  const handleDeleteEvent = useCallback(
+    (id: string) => {
+      setFlowState((s) => ({
+        ...s,
+        events: s.events.filter((e) => e.id !== id),
+        nodes: s.nodes.filter((node) => node.id !== id),
+        connections: s.connections.filter(
+          (c) => c.sourceId !== id && c.targetId !== id,
+        ),
+        edges: s.edges.filter(
+          (edge) => edge.source !== id && edge.target !== id,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
-  const handleUpdateCharacter = useCallback((id: string, name: string) => {
-    setFlowState((s) => ({
-      ...s,
-      characters: s.characters.map((c) => (c.id === id ? { ...c, name } : c)),
-      nodes: s.nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, label: name } }
-          : node,
-      ),
-    }));
-  }, []);
+  const handleUpdateCharacter = useCallback(
+    (id: string, name: string) => {
+      setFlowState((s) => ({
+        ...s,
+        characters: s.characters.map((c) => (c.id === id ? { ...c, name } : c)),
+        nodes: s.nodes.map((node) =>
+          node.id === id
+            ? { ...node, data: { ...node.data, label: name } }
+            : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
-  const handleDeleteCharacter = useCallback((id: string) => {
-    setFlowState((s) => ({
-      ...s,
-      characters: s.characters.filter((c) => c.id !== id),
-      nodes: s.nodes.filter((node) => node.id !== id),
-      connections: s.connections.filter(
-        (c) => c.sourceId !== id && c.targetId !== id,
-      ),
-      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
-    }));
-  }, []);
+  const handleDeleteCharacter = useCallback(
+    (id: string) => {
+      setFlowState((s) => ({
+        ...s,
+        characters: s.characters.filter((c) => c.id !== id),
+        nodes: s.nodes.filter((node) => node.id !== id),
+        connections: s.connections.filter(
+          (c) => c.sourceId !== id && c.targetId !== id,
+        ),
+        edges: s.edges.filter(
+          (edge) => edge.source !== id && edge.target !== id,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
   const handleUpdateCharacterDetails = useCallback(
     (id: string, details: string[]) => {
@@ -203,6 +258,22 @@ function LoreFlowInner({
     [dispatch],
   );
 
+  const handleUpdateCharacterQuotes = useCallback(
+    (id: string, quotes: string[]) => {
+      setFlowState((s) => ({
+        ...s,
+        characters: s.characters.map((c) =>
+          c.id === id ? { ...c, quotes } : c,
+        ),
+        nodes: s.nodes.map((node) =>
+          node.id === id ? { ...node, data: { ...node.data, quotes } } : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
+
   const handleDuplicateNode = useCallback(
     (id: string) => {
       setFlowState((s) => {
@@ -213,11 +284,7 @@ function LoreFlowInner({
         if (!character) return s;
 
         const newId = crypto.randomUUID();
-
-        const position = {
-          x: node.position.x + 40,
-          y: node.position.y + 60,
-        };
+        const position = { x: node.position.x + 40, y: node.position.y + 60 };
 
         return {
           ...s,
@@ -236,17 +303,13 @@ function LoreFlowInner({
               ...node,
               id: newId,
               position,
-              data: {
-                ...node.data,
-                label: `${character.name} (copy)`,
-              },
+              data: { ...node.data, label: `${character.name} (copy)` },
               parentNode: undefined,
               extent: undefined,
             },
           ],
         };
       });
-
       dispatch(markDirty());
     },
     [dispatch],
@@ -257,10 +320,7 @@ function LoreFlowInner({
       id: `event-${Date.now()}`,
       loreId,
       title: 'New Event',
-      position: {
-        x: Math.random() * 400,
-        y: Math.random() * 400,
-      },
+      position: { x: Math.random() * 400, y: Math.random() * 400 },
     };
 
     setFlowState((s) => ({
@@ -280,43 +340,49 @@ function LoreFlowInner({
         },
       ],
     }));
-
     dispatch(markDirty());
   }, [loreId, handleUpdateEvent, handleDeleteEvent, dispatch]);
 
-  const handleUpdatePlace = useCallback((id: string, name: string) => {
-    setFlowState((s) => ({
-      ...s,
-      places: s.places.map((c) => (c.id === id ? { ...c, name } : c)),
-      nodes: s.nodes.map((node) =>
-        node.id === id
-          ? { ...node, data: { ...node.data, label: name } }
-          : node,
-      ),
-    }));
-  }, []);
+  const handleUpdatePlace = useCallback(
+    (id: string, name: string) => {
+      setFlowState((s) => ({
+        ...s,
+        places: s.places.map((c) => (c.id === id ? { ...c, name } : c)),
+        nodes: s.nodes.map((node) =>
+          node.id === id
+            ? { ...node, data: { ...node.data, label: name } }
+            : node,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
-  const handleDeletePlace = useCallback((id: string) => {
-    setFlowState((s) => ({
-      ...s,
-      places: s.places.filter((c) => c.id !== id),
-      nodes: s.nodes.filter((node) => node.id !== id),
-      connections: s.connections.filter(
-        (c) => c.sourceId !== id && c.targetId !== id,
-      ),
-      edges: s.edges.filter((edge) => edge.source !== id && edge.target !== id),
-    }));
-  }, []);
+  const handleDeletePlace = useCallback(
+    (id: string) => {
+      setFlowState((s) => ({
+        ...s,
+        places: s.places.filter((c) => c.id !== id),
+        nodes: s.nodes.filter((node) => node.id !== id),
+        connections: s.connections.filter(
+          (c) => c.sourceId !== id && c.targetId !== id,
+        ),
+        edges: s.edges.filter(
+          (edge) => edge.source !== id && edge.target !== id,
+        ),
+      }));
+      dispatch(markDirty());
+    },
+    [dispatch],
+  );
 
   const handleAddPlace = useCallback(() => {
     const newChar: Place = {
       id: `char-${Date.now()}`,
       loreId,
       name: 'New Place',
-      position: {
-        x: Math.random() * 400 + 500,
-        y: Math.random() * 400,
-      },
+      position: { x: Math.random() * 400 + 500, y: Math.random() * 400 },
     };
 
     setFlowState((s) => ({
@@ -336,7 +402,6 @@ function LoreFlowInner({
         },
       ],
     }));
-
     dispatch(markDirty());
   }, [loreId, handleUpdatePlace, handleDeletePlace, dispatch]);
 
@@ -345,10 +410,7 @@ function LoreFlowInner({
       id: `char-${Date.now()}`,
       loreId,
       name: 'New Character',
-      position: {
-        x: Math.random() * 400 + 500,
-        y: Math.random() * 400,
-      },
+      position: { x: Math.random() * 400 + 500, y: Math.random() * 400 },
     };
 
     setFlowState((s) => ({
@@ -362,18 +424,19 @@ function LoreFlowInner({
           data: {
             label: newChar.name,
             details: [],
+            quotes: [],
             imageUrl: undefined,
             onUpdate: handleUpdateCharacter,
             onDelete: handleDeleteCharacter,
             onDuplicate: handleDuplicateNode,
             onUpdateDetails: handleUpdateCharacterDetails,
             onUpdateImage: handleUpdateCharacterImage,
+            onUpdateQuotes: handleUpdateCharacterQuotes,
           },
           position: newChar.position,
         },
       ],
     }));
-
     dispatch(markDirty());
   }, [
     loreId,
@@ -382,6 +445,7 @@ function LoreFlowInner({
     handleDuplicateNode,
     handleUpdateCharacterDetails,
     handleUpdateCharacterImage,
+    handleUpdateCharacterQuotes,
     dispatch,
   ]);
 
@@ -425,7 +489,6 @@ function LoreFlowInner({
           places: updatedPlaces,
         };
       });
-
       dispatch(markDirty());
     },
     [dispatch],
@@ -455,7 +518,6 @@ function LoreFlowInner({
           },
         ],
       }));
-
       dispatch(markDirty());
     },
     [loreId, dispatch],
@@ -468,7 +530,6 @@ function LoreFlowInner({
         const removedIds = new Set(
           changes.filter((c) => c.type === 'remove').map((c) => c.id),
         );
-
         return {
           ...s,
           edges: updatedEdges,
@@ -477,7 +538,6 @@ function LoreFlowInner({
             : s.connections,
         };
       });
-
       dispatch(markDirty());
     },
     [dispatch],
@@ -498,7 +558,6 @@ function LoreFlowInner({
         },
       };
     }
-
     if (node.type === 'character') {
       return {
         ...node,
@@ -509,10 +568,10 @@ function LoreFlowInner({
           onDuplicate: handleDuplicateNode,
           onUpdateDetails: handleUpdateCharacterDetails,
           onUpdateImage: handleUpdateCharacterImage,
+          onUpdateQuotes: handleUpdateCharacterQuotes,
         },
       };
     }
-
     if (node.type === 'place') {
       return {
         ...node,
@@ -523,17 +582,16 @@ function LoreFlowInner({
         },
       };
     }
-
     return node;
   }
 
   useEffect(() => {
     if (!activeLore) return;
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setFlowState((s) => ({
-      ...s,
-      nodes: (activeLore.nodes ?? []).map(withHandlers),
+    const initialNodes = (activeLore.nodes ?? []).map(withHandlers);
+
+    setFlowState({
+      nodes: initialNodes,
       events: activeLore.events ?? [],
       characters: activeLore.characters ?? [],
       connections: activeLore.connections ?? [],
@@ -544,7 +602,7 @@ function LoreFlowInner({
         target: c.targetId,
         type: 'simplebezier',
       })),
-    }));
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLore?.id]);
 
@@ -572,7 +630,22 @@ function LoreFlowInner({
 
       <div className="absolute inset-0 overflow-hidden">
         <ReactFlow
-          nodes={nodes}
+          nodes={nodes.map((node) => {
+            if (node.type === 'character') {
+              const char = characters.find((c) => c.id === node.id);
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  allDetails,
+                  details: char?.details ?? node.data.details ?? [],
+                  quotes: char?.quotes ?? node.data.quotes ?? [],
+                  imageUrl: char?.imageUrl ?? node.data.imageUrl,
+                },
+              };
+            }
+            return node;
+          })}
           edges={edges}
           nodeTypes={nodeTypes}
           onNodesChange={onNodesChange}
@@ -599,7 +672,6 @@ function LoreFlowInner({
                   onClick={() => setShowHelp(false)}
                 />
               </div>
-
               <ul className="space-y-2 text-sm text-gray-600">
                 <li>
                   <b>Drag nodes</b> to rearrange your story visually.

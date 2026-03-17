@@ -29,6 +29,9 @@ export type Character = {
   loreId: string;
   name: string;
   position: { x: number; y: number };
+  details?: string[];
+  quotes?: string[];
+  imageUrl?: string;
 };
 
 export type Place = {
@@ -61,6 +64,9 @@ export type NodeData = {
   imageUrl?: string;
   onUpdateDetails?: (id: string, details: string[]) => void;
   onUpdateImage?: (id: string, url: string) => void;
+  allDetails?: string[];
+  onUpdateQuotes?: (id: string, details: string[]) => void;
+  quotes?: string[];
 };
 
 export type UpdateLoreContentPayload = {

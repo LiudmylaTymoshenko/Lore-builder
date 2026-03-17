@@ -229,9 +229,14 @@ export default function LoreSidebar({
       >
         <div
           className="absolute top-0 left-0 bg-[#E7E8E3] border-r-2 border-[#3F4245]/10 flex flex-col"
-          style={{ width: sidebarWidth, height: '100vh', overflow: 'hidden' }}
+          style={{
+            width: sidebarWidth,
+            height: '100vh',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
         >
-          <div className="flex flex-col gap-4 p-4 flex-1 min-h-0 overflow-hidden">
+          <div className="flex flex-col gap-4 p-4">
             <h2 className="text-xl font-bold text-[#3F4245]">Lore Builder</h2>
 
             <div className="flex gap-2">
@@ -268,14 +273,14 @@ export default function LoreSidebar({
             </div>
 
             {tab === 'events' && (
-              <>
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleAddEvent}
                   className="w-full cursor-pointer rounded-lg bg-[#718E92] hover:bg-[#5a7074] py-2.5 text-sm font-bold text-white transition-all"
                 >
                   + Add Event
                 </button>
-                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
+                <ul className="space-y-2">
                   {pagedEvents.map((e) => (
                     <li
                       key={e.id}
@@ -352,18 +357,18 @@ export default function LoreSidebar({
                   totalPages={eventsTotalPages}
                   setPage={setEventsPage}
                 />
-              </>
+              </div>
             )}
 
             {tab === 'characters' && (
-              <>
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleAddCharacter}
                   className="w-full cursor-pointer rounded-lg bg-[#718E92] hover:bg-[#5a7074] py-2.5 text-sm font-bold text-white transition-all"
                 >
                   + Add Character
                 </button>
-                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
+                <ul className="space-y-2">
                   {pagedCharacters.map((c) => (
                     <li
                       key={c.id}
@@ -428,18 +433,18 @@ export default function LoreSidebar({
                   totalPages={charactersTotalPages}
                   setPage={setCharactersPage}
                 />
-              </>
+              </div>
             )}
 
             {tab === 'places' && (
-              <>
+              <div className="flex flex-col gap-3">
                 <button
                   onClick={handleAddPlace}
                   className="w-full cursor-pointer rounded-lg bg-[#718E92] hover:bg-[#5a7074] py-2.5 text-sm font-bold text-white transition-all"
                 >
                   + Add Place
                 </button>
-                <ul className="space-y-2 overflow-y-auto flex-1 min-h-0">
+                <ul className="space-y-2">
                   {pagedPlaces.map((p) => (
                     <li
                       key={p.id}
@@ -504,7 +509,7 @@ export default function LoreSidebar({
                   totalPages={placesTotalPages}
                   setPage={setPlacesPage}
                 />
-              </>
+              </div>
             )}
 
             <div className="border-t border-[#3F4245]/10 pt-4 text-xs text-[#3F4245]/60 font-medium">
@@ -514,23 +519,35 @@ export default function LoreSidebar({
 
           {activeLore?.imageUrl && (
             <div
-              style={{ position: 'relative', width: '100%', marginTop: 'auto' }}
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                width: '100%',
+                pointerEvents: 'none',
+              }}
             >
-              <img
-                src={String(activeLore.imageUrl)}
-                alt="Lore"
-                style={{ width: '100%', height: 'auto', display: 'block' }}
-              />
               <div
                 style={{
                   position: 'absolute',
                   top: 0,
                   left: 0,
                   width: '100%',
-                  height: '40%',
+                  height: '60%',
                   background:
                     'linear-gradient(to bottom, rgba(231, 232, 227, 1), transparent)',
-                  pointerEvents: 'none',
+                  zIndex: 1,
+                }}
+              />
+              <img
+                src={String(activeLore.imageUrl)}
+                alt="Lore"
+                style={{
+                  width: '100%',
+                  height: 'auto',
+                  display: 'block',
+                  maxHeight: '460px',
+                  objectFit: 'cover',
                 }}
               />
             </div>
@@ -547,7 +564,7 @@ export default function LoreSidebar({
         >
           <div className="flex flex-col gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-[#45413f]" />
+              <div key={i} className="w-1 h-1 rounded-full bg-[#3F4245]" />
             ))}
           </div>
         </div>

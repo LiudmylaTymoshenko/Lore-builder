@@ -120,8 +120,11 @@ function CharacterNode({ data, id, selected }: NodeProps<NodeData>) {
         characterName={data.label}
         details={data.details ?? []}
         imageUrl={data.imageUrl}
+        allDetails={data.allDetails ?? []}
         onUpdateDetails={(details) => data.onUpdateDetails?.(id, details)}
         onUpdateImage={(url) => data.onUpdateImage?.(id, url)}
+        quotes={data.quotes ?? []}
+        onUpdateQuotes={(quotes) => data.onUpdateQuotes?.(id, quotes)}
       />
     </>
   );
